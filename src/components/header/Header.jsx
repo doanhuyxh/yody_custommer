@@ -7,17 +7,69 @@ import { Input, InputGroupWrapper } from "../../styles/form";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
 import { BaseLinkGreen, BaseLinkOutlineDark } from "../../styles/button";
 import { useSelector } from "react-redux";
-import { searchProduct } from "../../services/apiService";
+import {
+  searchProduct,
+  getImgUrlBySlug,
+  getShoppingCart,
+} from "../../services/apiService";
+import { useEffect, useRef, useState } from "react";
 
 const NavigationAndSearchWrapper = styled.div`
   column-gap: 20px;
+
   .search-form {
+    position: relative;
+
     @media (max-width: ${breakpoints.lg}) {
       width: 100%;
       max-width: 500px;
     }
     @media (max-width: ${breakpoints.sm}) {
       display: none;
+    }
+
+    .suggestions-dropdown {
+      position: absolute;
+      top: 120%;
+      left: 0;
+      width: 100%;
+      background-color: ${defaultTheme.color_white};
+      border: 1px solid ${defaultTheme.color_platinum};
+      z-index: 999;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .suggestions-list {
+      margin: 0;
+      list-style-type: none;
+    }
+
+    .suggestion-item {
+      padding: 10px 15px;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #f9f9f9;
+      }
+    }
+
+    .suggestion-link {
+      color: #333;
+      text-decoration: none;
+      display: block;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      column-gap: 10px;
+
+      &:hover {
+        color: #333;
+      }
     }
   }
 
@@ -90,6 +142,7 @@ const NavigationMenuWrapper = styled.nav`
 
 const IconLinksWrapper = styled.div`
   column-gap: 18px;
+
   .icon-link {
     width: 36px;
     height: 36px;
@@ -114,6 +167,22 @@ const IconLinksWrapper = styled.div`
   @media (max-width: ${breakpoints.xl}) {
     column-gap: 6px;
   }
+
+  .icon-cart {
+    position: relative;
+
+    .cart-badge {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 20px;
+      height: 20px;
+      color: #fff;
+      background: #ff0000;
+      border-radius: 100%;
+      text-align: center;
+    }
+  }
 `;
 
 const ButtonGroupWrapper = styled.div`
@@ -130,6 +199,105 @@ const Header = () => {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 
   const location = useLocation();
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [images, setImages] = useState({});
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [cart, setCart] = useState({});
+
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Kiểm tra xem người dùng có nhấp ra ngoài dropdown không
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownVisible(false); // Ẩn dropdown khi nhấp ra ngoài
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Dọn dẹp sự kiện khi component unmount
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    setDropdownVisible(false); // Ẩn dropdown khi chuyển trang
+  }, [location.pathname]);
+
+  // Sử dụng useEffect để gọi API khi từ khóa tìm kiếm thay đổi
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      // convert searchTerm eg: "  abc  " => "abc" and "ao khoac" => "ao-khoac"
+      const formattedTerm = searchTerm.trim().replace(/\s+/g, "-");
+      handleSearch(formattedTerm);
+    }, 300); // Gọi API sau 300ms khi người dùng ngừng gõ
+
+    return () => clearTimeout(timeoutId); // Dọn dẹp khi component unmount hoặc từ khóa thay đổi
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const fetchImageUrls = async () => {
+      try {
+        const imagePromises = suggestions.map(
+          (product) => getImgUrlBySlug(product.slug) // Gọi API với slug của từng sản phẩm
+        );
+
+        const results = await Promise.all(imagePromises);
+
+        // Lưu kết quả vào state theo slug
+        const imagesObj = {};
+        results.forEach((result, index) => {
+          if (result.data) {
+            imagesObj[suggestions[index].slug] = result.data;
+          }
+        });
+
+        setImages(imagesObj);
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    };
+
+    if (suggestions.length > 0) {
+      fetchImageUrls();
+    }
+  }, [suggestions]);
+
+  // get cart to display badge on cart icon
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const data = await getShoppingCart();
+        setCart(data.data);
+      } catch (error) {
+        console.error("Error fetching shopping cart:", error);
+      }
+    };
+    fetchCart();
+  }, []);
+
+  console.log(cart.length);
+
+  const handleFocus = () => {
+    setDropdownVisible(true); // Hiện dropdown khi input được focus
+  };
+
+  const handleSearch = async (term) => {
+    if (term) {
+      try {
+        const data = await searchProduct(term);
+        setSuggestions(data.data); // Giả sử API trả về danh sách sản phẩm tại response.data.products
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
+    } else {
+      setSuggestions([]); // Reset gợi ý khi không có từ khóa
+    }
+  };
 
   return (
     <HeaderMainWrapper className="header flex items-center">
@@ -177,8 +345,45 @@ const Header = () => {
                   type="text"
                   className="input-control w-full"
                   placeholder="Tìm kiếm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onFocus={handleFocus}
                 />
               </InputGroupWrapper>
+
+              {dropdownVisible && suggestions?.length > 0 && (
+                <div ref={dropdownRef} className="suggestions-dropdown">
+                  <ul className="suggestions-list">
+                    {suggestions.map((product) => (
+                      <li key={product.id} className="suggestion-item">
+                        <Link
+                          to={`/product/details/${product.id}`}
+                          className="suggestion-link"
+                        >
+                          <div className="product-images">
+                            {images[product.slug] &&
+                            images[product.slug].length > 0 ? (
+                              <img
+                                src={`https://api.yody.lokid.xyz${
+                                  images[product.slug][0].image_link
+                                }`}
+                                alt={`Image for ${product.name}`}
+                                style={{
+                                  width: "50px",
+                                  height: "50px",
+                                }} // Cài đặt kích thước và khoảng cách giữa các ảnh
+                              />
+                            ) : (
+                              <span>No image available</span> // Hiển thị thông báo nếu không có ảnh
+                            )}
+                          </div>
+                          {product.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </form>
           </NavigationAndSearchWrapper>
 
@@ -208,10 +413,13 @@ const Header = () => {
 
                 <Link
                   to="/cart"
-                  className={`icon-link ${
+                  className={`icon-link icon-cart ${
                     location.pathname === "/cart" ? "active" : ""
                   } inline-flex items-center justify-center`}
                 >
+                  {cart.length > 0 && (
+                    <span className="cart-badge">{cart.length}</span>
+                  )}
                   <img src={staticImages.cart} alt="" />
                 </Link>
               </>
