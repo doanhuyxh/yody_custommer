@@ -7,12 +7,9 @@ import { Input, InputGroupWrapper } from "../../styles/form";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
 import { BaseLinkGreen, BaseLinkOutlineDark } from "../../styles/button";
 import { useSelector } from "react-redux";
-import {
-  searchProduct,
-  getImgUrlBySlug,
-  getShoppingCart,
-} from "../../services/apiService";
+import { searchProduct, getImgUrlBySlug } from "../../services/apiService";
 import { useEffect, useRef, useState } from "react";
+import { useCart } from "../../context/CartContext";
 
 const NavigationAndSearchWrapper = styled.div`
   column-gap: 20px;
@@ -196,6 +193,9 @@ const ButtonGroupWrapper = styled.div`
 `;
 
 const Header = () => {
+  const { cartCount } = useCart();
+  console.log("cartCount", cartCount);
+
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 
   const location = useLocation();
@@ -204,7 +204,6 @@ const Header = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [images, setImages] = useState({});
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [cart, setCart] = useState({});
 
   const dropdownRef = useRef(null);
 
@@ -266,19 +265,6 @@ const Header = () => {
       fetchImageUrls();
     }
   }, [suggestions]);
-
-  // get cart to display badge on cart icon
-  useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const data = await getShoppingCart();
-        setCart(data.data);
-      } catch (error) {
-        console.error("Error fetching shopping cart:", error);
-      }
-    };
-    fetchCart();
-  }, []);
 
   const handleFocus = () => {
     setDropdownVisible(true); // Hiện dropdown khi input được focus
@@ -415,8 +401,8 @@ const Header = () => {
                     location.pathname === "/cart" ? "active" : ""
                   } inline-flex items-center justify-center`}
                 >
-                  {cart.length > 0 && (
-                    <span className="cart-badge">{cart.length}</span>
+                  {cartCount > 0 && (
+                    <span className="cart-badge">{cartCount}</span>
                   )}
                   <img src={staticImages.cart} alt="" />
                 </Link>

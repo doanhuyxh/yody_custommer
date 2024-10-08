@@ -12,10 +12,10 @@ import {
   getSize,
   getColor,
   getCategories,
-  postAddToCart,
 } from "../../services/apiService";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useCart } from "../../context/CartContext";
 
 const DetailsScreenWrapper = styled.main`
   margin: 40px 0;
@@ -196,6 +196,7 @@ const ProductColorWrapper = styled.div`
 
 const ProductDetailsScreen = () => {
   const { id } = useParams();
+  const { addToCart } = useCart();
 
   const [catagories, setCatagories] = useState([]);
   const [product, setProduct] = useState({});
@@ -292,9 +293,11 @@ const ProductDetailsScreen = () => {
     );
 
     try {
-      const data = await postAddToCart(selectedVariant.id);
-      if (data.code === 20001) {
+      const result = await addToCart(selectedVariant.id);
+      if (result) {
         toast.success("Thêm vào giỏ hàng thành công!");
+      } else {
+        toast.error("Thêm vào giỏ hàng thất bại!");
       }
     } catch (error) {
       console.error("Lỗi:", error);

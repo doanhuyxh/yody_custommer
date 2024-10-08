@@ -11,6 +11,7 @@ import {
   getSize,
   getColor,
 } from "../../services/apiService";
+import { useCart } from "../../context/CartContext";
 
 const CartTableRowWrapper = styled.tr`
   .cart-tbl {
@@ -76,6 +77,8 @@ const CartTableRowWrapper = styled.tr`
 `;
 
 const CartItem = ({ cartItem, onQuantityChange, onItemDelete }) => {
+  const { updateCartCountWhenDelete } = useCart();
+
   const [quantity, setQuantity] = useState(cartItem.quantity);
   const [loading, setLoading] = useState(false);
   const [variant, setVariant] = useState([]);
@@ -114,8 +117,11 @@ const CartItem = ({ cartItem, onQuantityChange, onItemDelete }) => {
   const deleteCart = async () => {
     setLoading(true);
     try {
-      await deleteProductInCart(cartItem.id);
-      onItemDelete(cartItem.id);
+      const data = await deleteProductInCart(cartItem.id);
+      if (data.code === 20001) {
+        onItemDelete(cartItem.id);
+        updateCartCountWhenDelete(data.data);
+      }
     } catch (error) {
       console.error("Failed to delete product from cart:", error);
     } finally {
