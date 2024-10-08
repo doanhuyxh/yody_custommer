@@ -3,6 +3,16 @@ import { Input } from "../../styles/form";
 import { BaseButtonGreen } from "../../styles/button";
 import CheckoutSummary from "./CheckoutSummary";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
+import {
+  updateProfile,
+  getUserInfo,
+  getShoppingCart,
+  getVariant,
+  getProductById,
+} from "../../services/apiService";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const BillingOrderWrapper = styled.div`
   gap: 60px;
@@ -95,6 +105,78 @@ const BillingDetailsWrapper = styled.div`
 `;
 
 const Billing = () => {
+  const customer = useSelector((state) => state.user.customer);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [cart, setCart] = useState([]);
+  const [subtotal, setSubtotal] = useState(0);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const data = await getUserInfo(customer.id);
+        setName(data.data.full_name);
+        setEmail(data.data.email);
+        setPhoneNumber(data.data.phone_number);
+        setAddress(data.data.address);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const fetchCart = async () => {
+      try {
+        const data = await getShoppingCart();
+        setCart(data.data);
+      } catch (error) {
+        console.error("Error fetching shopping cart:", error);
+      }
+    };
+
+    fetchCart();
+    fetchUserInfo();
+  }, []);
+
+  useEffect(() => {
+    const fetchProductPrices = async () => {
+      const variantPromises = cart.map((item) =>
+        getVariant(item.product_variant_id)
+      ); // Lấy dữ liệu variant
+      const variants = await Promise.all(variantPromises); // Đợi tất cả promise hoàn thành
+      const productPromises = variants.map((variant) =>
+        getProductById(variant.data.product_id)
+      ); // Lấy chi tiết sản phẩm
+      const products = await Promise.all(productPromises); // Đợi chi tiết sản phẩm
+
+      // Tính toán subtotal
+      const total = products.reduce((acc, product, index) => {
+        const price = product.data.Product.price; // Lấy giá của sản phẩm
+        const quantity = cart[index].quantity; // Lấy số lượng từ cart
+        return acc + price * quantity; // Cộng vào tổng
+      }, 0);
+
+      setSubtotal(total); // Cập nhật subtotal
+    };
+
+    if (cart.length > 0) {
+      fetchProductPrices(); // Chỉ gọi hàm nếu cart không rỗng
+    }
+  }, [cart]);
+
+  const handleCheckout = (e) => {
+    e.preventDefault();
+
+    if (!name || !phoneNumber || !address) {
+      toast.error("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    toast.success("Thanh toán thành công");
+  };
+
   return (
     <BillingOrderWrapper className="billing-and-order grid items-start">
       <BillingDetailsWrapper>
@@ -110,16 +192,42 @@ const Billing = () => {
               >
                 Họ và tên*
               </label>
-              <Input type="text" placeholder="Họ và tên" />
+              <Input
+                type="text"
+                placeholder="Họ và tên"
+                value={name}
+                onChange={(e) => {
+                  updateProfile({
+                    id: customer.id,
+                    field: "full_name",
+                    value: e.target.value,
+                  });
+
+                  setName(e.target.value);
+                }}
+              />
             </div>
             <div className="input-elem">
               <label
                 htmlFor=""
                 className="text-base text-outerspace font-semibold"
               >
-                Email*
+                Email
               </label>
-              <Input type="text" placeholder="Email" />
+              <Input
+                type="text"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => {
+                  updateProfile({
+                    id: customer.id,
+                    field: "email",
+                    value: e.target.value,
+                  });
+
+                  setEmail(e.target.value);
+                }}
+              />
             </div>
           </div>
           <div className="input-elem-group elem-col-2">
@@ -130,99 +238,54 @@ const Billing = () => {
               >
                 Số điện thoại*
               </label>
-              <Input type="text" placeholder="Số điện thoại" />
+              <Input
+                type="text"
+                placeholder="Số điện thoại"
+                value={phoneNumber}
+                onChange={(e) => {
+                  updateProfile({
+                    id: customer.id,
+                    field: "phone_number",
+                    value: e.target.value,
+                  });
+
+                  setPhoneNumber(e.target.value);
+                }}
+              />
             </div>
             <div className="input-elem">
               <label
                 htmlFor=""
                 className="text-base text-outerspace font-semibold"
               >
-                Company Name
-              </label>
-              <Input type="text" placeholder="Company (optional)" />
-            </div>
-          </div>
-          <div className="input-elem-group elem-col-2">
-            <div className="input-elem">
-              <label
-                htmlFor=""
-                className="text-base text-outerspace font-semibold"
-              >
-                Street Address*
-              </label>
-              <Input type="text" placeholder="House number and street name" />
-            </div>
-            <div className="input-elem">
-              <label
-                htmlFor=""
-                className="text-base text-outerspace font-semibold"
-              >
-                Apt, suite, unit
+                Địa chỉ nhận hàng*
               </label>
               <Input
                 type="text"
-                placeholder="apartment, suite, unit, etc. (optional)"
+                placeholder="Địa chỉ nhận hàng"
+                value={address}
+                onChange={(e) => {
+                  updateProfile({
+                    id: customer.id,
+                    field: "address",
+                    value: e.target.value,
+                  });
+
+                  setAddress(e.target.value);
+                }}
               />
             </div>
           </div>
-          <div className="input-elem-group elem-col-3">
-            <div className="input-elem">
-              <label
-                htmlFor=""
-                className="text-base text-outerspace font-semibold"
-              >
-                City*
-              </label>
-              <Input type="text" placeholder="Town / City" />
-            </div>
-            <div className="input-elem">
-              <label
-                htmlFor=""
-                className="text-base text-outerspace font-semibold"
-              >
-                State*
-              </label>
-              <select name="">
-                <option value="" disabled>
-                  State
-                </option>
-                <option value="">State 1</option>
-                <option value="">State 1</option>
-              </select>
-            </div>
-            <div className="input-elem">
-              <label
-                htmlFor=""
-                className="text-base text-outerspace font-semibold"
-              >
-                Postal Code*
-              </label>
-              <Input type="text" placeholder="Postal Code" />
-            </div>
-          </div>
-          <div className="input-elem-group elem-col-2">
-            <div className="input-elem">
-              <label
-                htmlFor=""
-                className="text-base text-outerspace font-semibold"
-              >
-                Phone*
-              </label>
-              <Input type="text" placeholder="Phone" />
-            </div>
-          </div>
-          <BaseButtonGreen type="submit" className="contd-delivery-btn">
-            Continue to delivery
+          <BaseButtonGreen
+            type="submit"
+            className="contd-delivery-btn"
+            onClick={handleCheckout}
+          >
+            Thanh toán
           </BaseButtonGreen>
-          <div className="input-check-group flex items-center flex-wrap">
-            <Input type="checkbox" />
-            <p className="text-base">
-              Save my information for a faster checkout
-            </p>
-          </div>
         </form>
       </BillingDetailsWrapper>
-      <CheckoutSummary />
+      <CheckoutSummary cartItems={cart} subtotal={subtotal} />
     </BillingOrderWrapper>
   );
 };

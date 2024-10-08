@@ -67,11 +67,11 @@ const CartSummary = ({ subtotal, shippingCost }) => {
           </span>
         </li>
       </ul>
-      <BaseButtonGreen type="submit" className="checkout-btn">
-        <Link to="/checkout" className="text-white">
+      <Link to="/checkout" className="text-white">
+        <BaseButtonGreen type="submit" className="checkout-btn">
           Tiến hành thanh toán
-        </Link>
-      </BaseButtonGreen>
+        </BaseButtonGreen>
+      </Link>
     </CartSummaryWrapper>
   );
 };

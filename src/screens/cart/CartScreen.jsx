@@ -64,6 +64,7 @@ const CartScreen = () => {
         console.error("Error fetching shopping cart:", error);
       }
     };
+    
     fetchCart();
   }, []);
 

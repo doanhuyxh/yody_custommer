@@ -2,7 +2,6 @@ import styled from "styled-components";
 import { Container } from "../../styles/styles";
 import Title from "../../components/common/Title";
 import Billing from "../../components/checkout/Billing";
-import ShippingPayment from "../../components/checkout/ShippingPayment";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
 
 const CheckoutScreenWrapper = styled.main`
@@ -25,8 +24,6 @@ const CheckoutScreen = () => {
       <Container>
         <Title titleText={"Thanh toán"} />
         <Billing />
-        <div className="horiz-line-separator w-full"></div>
-        <ShippingPayment />
       </Container>
     </CheckoutScreenWrapper>
   );

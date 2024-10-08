@@ -1,7 +1,15 @@
+/* eslint-disable react/prop-types */
 import styled from "styled-components";
 import { orderData } from "../../data/data";
 import { currencyFormat } from "../../utils/helper";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
+import {
+  getVariant,
+  getProductById,
+  getSize,
+  getColor,
+} from "../../services/apiService";
+import { useEffect, useState } from "react";
 
 const CheckoutSummaryWrapper = styled.div`
   box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.05),
@@ -74,12 +82,46 @@ const CheckoutSummaryWrapper = styled.div`
   }
 `;
 
-const CheckoutSummary = () => {
+const CheckoutSummary = ({ cartItems, subtotal }) => {
+  const grandTotal = subtotal;
+  const shippingCost = 0;
+
+  const [orderDetails, setOrderDetails] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const fetchedItems = await Promise.all(
+        cartItems.map(async (item) => {
+          const variantData = await getVariant(item.id);
+          const productData = await getProductById(variantData.data.product_id);
+          const sizeData = await getSize(); // Assuming you want the same size data for all items
+          const colorData = await getColor(); // Assuming you want the same color data for all items
+
+          // // Fetch product, color, and size based on IDs from variantData
+          // const productData = await getProductById(variantData.data.product_id);
+          // const colorData = await getColorById(variantData.data.color_id);
+          // const sizeData = await getSizeById(variantData.data.size_id);
+
+          return {
+            ...item,
+            product: productData.data,
+            variant: variantData.data,
+            size: sizeData, // You might want to customize this based on variant
+            color: colorData, // Same here
+          };
+        })
+      );
+      setOrderDetails(fetchedItems);
+    };
+
+    fetchData();
+  }, [cartItems]);
+
+  console.log(orderDetails);
+
   return (
     <CheckoutSummaryWrapper>
-      <h4 className="text-xxl font-bold text-outersapce">
-        Checkout Order Summary
-      </h4>
+      <h4 className="text-xxl font-bold text-outersapce">Tóm tắt đơn hàng</h4>
       <div className="order-list grid">
         {orderData[0]?.items?.map((order) => {
           return (
@@ -114,22 +156,33 @@ const CheckoutSummary = () => {
       <ul className="order-info">
         <li className="flex items-center justify-between">
           <span className="text-outerspace font-bold text-lg">
-            Subtotal <span className="text-gray font-semibold">(3 items)</span>
+            Tạm tính{" "}
+            <span className="text-gray font-semibold">(3 sản phẩm)</span>
           </span>
-          <span className="text-outerspace font-bold text-lg">$513.00</span>
+          <span className="text-outerspace font-bold text-lg"></span>
         </li>
+
         <li className="flex items-center justify-between">
-          <span className="text-outerspace font-bold text-lg">Savings</span>
-          <span className="text-outerspace font-bold text-lg">-$30.00</span>
+          <span className="text-outerspace font-bold text-lg">
+            Phí vận chuyển
+          </span>
+          <span className="text-outerspace font-bold text-lg">
+            {shippingCost.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </span>
         </li>
-        <li className="flex items-center justify-between">
-          <span className="text-outerspace font-bold text-lg">Shipping</span>
-          <span className="text-outerspace font-bold text-lg">-$5.00</span>
-        </li>
+
         <li className="list-separator"></li>
         <li className="flex items-center justify-between">
-          <span className="text-outerspace font-bold text-lg">Total</span>
-          <span className="text-outerspace font-bold text-lg">$478.00</span>
+          <span className="text-outerspace font-bold text-lg">Tổng cộng</span>
+          <span className="text-outerspace font-bold text-lg">
+            {grandTotal.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </span>
         </li>
       </ul>
     </CheckoutSummaryWrapper>

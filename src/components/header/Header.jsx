@@ -280,8 +280,6 @@ const Header = () => {
     fetchCart();
   }, []);
 
-  console.log(cart.length);
-
   const handleFocus = () => {
     setDropdownVisible(true); // Hiện dropdown khi input được focus
   };
