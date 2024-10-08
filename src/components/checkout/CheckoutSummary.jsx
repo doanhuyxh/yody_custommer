@@ -1,7 +1,5 @@
 /* eslint-disable react/prop-types */
 import styled from "styled-components";
-import { orderData } from "../../data/data";
-import { currencyFormat } from "../../utils/helper";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
 import {
   getVariant,
@@ -92,8 +90,11 @@ const CheckoutSummary = ({ cartItems, subtotal }) => {
     const fetchData = async () => {
       const fetchedItems = await Promise.all(
         cartItems.map(async (item) => {
-          const variantData = await getVariant(item.id);
+          console.log("item", item);
+          const variantData = await getVariant(item.product_variant_id);
+          console.log("variantData", variantData);
           const productData = await getProductById(variantData.data.product_id);
+          console.log("productData", productData);
           const sizeData = await getSize(); // Assuming you want the same size data for all items
           const colorData = await getColor(); // Assuming you want the same color data for all items
 
@@ -102,12 +103,19 @@ const CheckoutSummary = ({ cartItems, subtotal }) => {
           // const colorData = await getColorById(variantData.data.color_id);
           // const sizeData = await getSizeById(variantData.data.size_id);
 
+          const getColorFollowVariant = colorData.data.find(
+            (color) => color.id === variantData.data.color_id
+          );
+
+          const getSizeFollowVariant = sizeData.data.find(
+            (size) => size.id === variantData.data.size_id
+          );
+
           return {
             ...item,
             product: productData.data,
-            variant: variantData.data,
-            size: sizeData, // You might want to customize this based on variant
-            color: colorData, // Same here
+            size: getSizeFollowVariant,
+            color: getColorFollowVariant,
           };
         })
       );
@@ -123,12 +131,12 @@ const CheckoutSummary = ({ cartItems, subtotal }) => {
     <CheckoutSummaryWrapper>
       <h4 className="text-xxl font-bold text-outersapce">Tóm tắt đơn hàng</h4>
       <div className="order-list grid">
-        {orderData[0]?.items?.map((order) => {
+        {orderDetails?.map((order) => {
           return (
             <div className="order-item grid" key={order.id}>
               <div className="order-item-img">
                 <img
-                  src={order.imgSource}
+                  src={`https://api.yody.lokid.xyz${order.product.Images[0]?.link}`}
                   className="object-fit-cover"
                   alt=""
                 />
@@ -136,16 +144,21 @@ const CheckoutSummary = ({ cartItems, subtotal }) => {
               <div className="order-item-info flex justify-between">
                 <div className="order-item-info-l">
                   <p className="text-base font-bold text-outerspace">
-                    {order.name}&nbsp;
+                    {order.product.Product.name}&nbsp;
                     <span className="text-gray">x{order.quantity}</span>
                   </p>
                   <p className="text-base font-bold text-outerspaace">
-                    Color: &nbsp;
-                    <span className="text-gray font-normal">{order.color}</span>
+                    Màu: &nbsp;
+                    <span className="text-gray font-normal">
+                      {order.color.name}
+                    </span>
                   </p>
                 </div>
                 <div className="order-item-info-r text-gray font-bold text-base">
-                  {currencyFormat(order.price)}
+                  {order.product.Product.price.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
                 </div>
               </div>
             </div>
@@ -159,7 +172,12 @@ const CheckoutSummary = ({ cartItems, subtotal }) => {
             Tạm tính{" "}
             <span className="text-gray font-semibold">(3 sản phẩm)</span>
           </span>
-          <span className="text-outerspace font-bold text-lg"></span>
+          <span className="text-outerspace font-bold text-lg">
+            {subtotal.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </span>
         </li>
 
         <li className="flex items-center justify-between">
