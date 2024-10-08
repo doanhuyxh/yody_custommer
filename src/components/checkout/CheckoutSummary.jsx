@@ -90,18 +90,10 @@ const CheckoutSummary = ({ cartItems, subtotal }) => {
     const fetchData = async () => {
       const fetchedItems = await Promise.all(
         cartItems.map(async (item) => {
-          console.log("item", item);
           const variantData = await getVariant(item.product_variant_id);
-          console.log("variantData", variantData);
           const productData = await getProductById(variantData.data.product_id);
-          console.log("productData", productData);
-          const sizeData = await getSize(); // Assuming you want the same size data for all items
-          const colorData = await getColor(); // Assuming you want the same color data for all items
-
-          // // Fetch product, color, and size based on IDs from variantData
-          // const productData = await getProductById(variantData.data.product_id);
-          // const colorData = await getColorById(variantData.data.color_id);
-          // const sizeData = await getSizeById(variantData.data.size_id);
+          const sizeData = await getSize();
+          const colorData = await getColor();
 
           const getColorFollowVariant = colorData.data.find(
             (color) => color.id === variantData.data.color_id
@@ -124,8 +116,6 @@ const CheckoutSummary = ({ cartItems, subtotal }) => {
 
     fetchData();
   }, [cartItems]);
-
-  console.log(orderDetails);
 
   return (
     <CheckoutSummaryWrapper>

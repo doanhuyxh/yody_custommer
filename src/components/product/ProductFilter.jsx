@@ -52,10 +52,6 @@ const ProductFilter = () => {
     fetchCategories();
   }, []);
 
-  console.log("colors", colors);
-  console.log("sizes", sizes);
-  console.log("categories", categories);
-
   const toggleFilter = (filter) => {
     switch (filter) {
       case "product":

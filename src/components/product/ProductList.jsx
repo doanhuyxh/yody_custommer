@@ -15,7 +15,6 @@ const ProductListWrapper = styled.div`
 `;
 
 const ProductList = ({ products }) => {
-  console.log(products);
   return (
     <ProductListWrapper className="grid">
       {products?.length > 0 ? (

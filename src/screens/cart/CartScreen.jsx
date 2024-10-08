@@ -68,15 +68,12 @@ const CartScreen = () => {
     fetchCart();
   }, []);
 
-  console.log("cart", cart);
-
   useEffect(() => {
     const fetchProductPrices = async () => {
       const variantPromises = cart.map((item) =>
         getVariant(item.product_variant_id)
       ); // Lấy dữ liệu variant
       const variants = await Promise.all(variantPromises); // Đợi tất cả promise hoàn thành
-      console.log("variants", variants);
 
       const productPromises = variants.map((variant) =>
         getProductById(variant.data.product_id)

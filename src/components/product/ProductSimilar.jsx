@@ -4,7 +4,6 @@ import Title from "../common/Title";
 import ProductList from "./ProductList";
 
 const ProductSimilar = ({ products }) => {
-  console.log("ProductSimilar -> products", products);
   return (
     <Section>
       <Title titleText={"Sản phẩm tương tự"} />
