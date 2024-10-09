@@ -194,7 +194,6 @@ const ButtonGroupWrapper = styled.div`
 
 const Header = () => {
   const { cartCount } = useCart();
-  console.log("cartCount", cartCount);
 
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 

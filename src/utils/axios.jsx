@@ -1,7 +1,8 @@
 import axios from "axios";
 import NProgress from "nprogress";
-import { logout } from "../redux/slices/userSlice";
+import { logout, login } from "../redux/slices/userSlice";
 import { store } from "../redux/store";
+import { refreshAccessToken } from "../services/apiService";
 
 // thư viện loading dạng bar khi call api
 NProgress.configure({
@@ -37,15 +38,34 @@ instance.interceptors.request.use(
 
 // Thêm một interceptor response để xử lý dữ liệu hoặc lỗi trả về từ server
 instance.interceptors.response.use(
-  function (response) {
+  async function (response) {
     // Dừng NProgress sau khi nhận được response
     NProgress.done();
 
     if (response.data.code === 20005) {
       // Nếu token hết hạn (mã lỗi 20005), thực hiện hành động logout
-      store.dispatch(logout());
-      // Có thể điều hướng người dùng về trang login nếu cần
-      window.location.href = "/sign_in";
+      const refreshToken = store.getState().user.refreshToken;
+      console.log("refreshToken", refreshToken);
+      const refreshResponse = await refreshAccessToken(refreshToken);
+      console.log("refreshResponse", refreshResponse);
+      if (refreshResponse.code === 20001) {
+        // Cập nhật trạng thái người dùng với token mới
+        const { customer, tokens } = refreshResponse.data;
+
+        store.dispatch(login({ customer, tokens }));
+
+        // Gửi lại request gốc với token mới
+        const originalRequest = response.config; // Lấy request gốc
+        originalRequest.headers[
+          "Authorization"
+        ] = `Bearer ${tokens.access_token}`;
+
+        // Gọi lại API với token mới
+        return instance(originalRequest);
+      } else {
+        store.dispatch(logout());
+        window.location.href = "/sign_in";
+      }
     }
     // Trả về dữ liệu từ phản hồi, hoặc toàn bộ phản hồi nếu không có dữ liệu
     return response && response?.data ? response.data : response;
