@@ -16,11 +16,15 @@ export const postRegister = async ({ email, fullName, password }) => {
 };
 
 export const refreshAccessToken = async (refreshToken) => {
-  return axios.post("api/auth/refresh", {
-    headers: {
-      "Refresh-Token": refreshToken,
-    },
-  });
+  return axios.post(
+    "api/auth/refresh",
+    {},
+    {
+      headers: {
+        "Refresh-Token": refreshToken,
+      },
+    }
+  );
 };
 
 export const updateProfile = async ({ id, field, value }) => {

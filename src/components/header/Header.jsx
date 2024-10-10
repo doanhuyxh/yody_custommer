@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { HeaderMainWrapper, SiteBrandWrapper } from "../../styles/header";
 import { Container } from "../../styles/styles";
 import { staticImages } from "../../utils/images";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Input, InputGroupWrapper } from "../../styles/form";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
 import { BaseLinkGreen, BaseLinkOutlineDark } from "../../styles/button";
@@ -195,6 +195,8 @@ const ButtonGroupWrapper = styled.div`
 const Header = () => {
   const { cartCount } = useCart();
 
+  const navigate = useNavigate();
+
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 
   const location = useLocation();
@@ -331,6 +333,14 @@ const Header = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onFocus={handleFocus}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      setDropdownVisible(false);
+                      const slugSearch = searchTerm.trim().replace(/\s+/g, "-");
+                      navigate(`/product?search=${slugSearch}`);
+                    }
+                  }}
                 />
               </InputGroupWrapper>
 

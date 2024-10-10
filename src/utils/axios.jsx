@@ -45,9 +45,7 @@ instance.interceptors.response.use(
     if (response.data.code === 20005) {
       // Nếu token hết hạn (mã lỗi 20005), thực hiện hành động logout
       const refreshToken = store.getState().user.refreshToken;
-      console.log("refreshToken", refreshToken);
       const refreshResponse = await refreshAccessToken(refreshToken);
-      console.log("refreshResponse", refreshResponse);
       if (refreshResponse.code === 20001) {
         // Cập nhật trạng thái người dùng với token mới
         const { customer, tokens } = refreshResponse.data;

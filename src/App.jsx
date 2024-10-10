@@ -29,6 +29,7 @@ import Address from "./screens/user/AddressScreen";
 import "react-toastify/dist/ReactToastify.css";
 import "nprogress/nprogress.css";
 import PrivateRoute from "./routes/PrivateRoute";
+import Payment from "./screens/payment/Payment";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/product" element={<ProductList />} />
             <Route path="/product/details/:id" element={<ProductDetails />} />
+            <Route path="/payment" element={<Payment />} />
             <Route
               path="/cart"
               element={
