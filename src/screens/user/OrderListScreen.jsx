@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 import { Container } from "../../styles/styles";
 import Breadcrumb from "../../components/common/Breadcrumb";
@@ -12,6 +13,11 @@ const OrderListScreenWrapper = styled.div`
   .order-tabs-contents {
     margin-top: 40px;
   }
+
+  .order-tabs-content.hidden {
+    display: none;
+  }
+
   .order-tabs-head {
     min-width: 170px;
     padding: 12px 0;
@@ -37,6 +43,12 @@ const breadcrumbItems = [
 ];
 
 const OrderListScreen = () => {
+  const [activeTab, setActiveTab] = useState("active");
+
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+  };
+
   return (
     <OrderListScreenWrapper className="page-py-spacing">
       <Container>
@@ -49,35 +61,56 @@ const OrderListScreen = () => {
               <div className="order-tabs-heads">
                 <button
                   type="button"
-                  className="order-tabs-head text-xl italic order-tabs-head-active"
-                  data-id="active"
+                  className={`order-tabs-head text-xl italic ${
+                    activeTab === "active" ? "order-tabs-head-active" : ""
+                  }`}
+                  onClick={() => handleTabClick("active")}
                 >
-                  Active
+                  Đang xử lý
                 </button>
                 <button
                   type="button"
-                  className="order-tabs-head text-xl italic"
-                  data-id="cancelled"
+                  className={`order-tabs-head text-xl italic ${
+                    activeTab === "cancelled" ? "order-tabs-head-active" : ""
+                  }`}
+                  onClick={() => handleTabClick("cancelled")}
                 >
-                  Cancelled
+                  Đã hủy
                 </button>
                 <button
                   type="button"
-                  className="order-tabs-head text-xl italic"
-                  data-id="completed"
+                  className={`order-tabs-head text-xl italic ${
+                    activeTab === "completed" ? "order-tabs-head-active" : ""
+                  }`}
+                  onClick={() => handleTabClick("completed")}
                 >
-                  Completed
+                  Đã hoàn thành
                 </button>
               </div>
 
               <div className="order-tabs-contents">
-                <div className="order-tabs-content" id="active">
+                <div
+                  className={`order-tabs-content ${
+                    activeTab === "active" ? "" : "hidden"
+                  }`}
+                  id="active"
+                >
                   <OrderItemList orders={orderData} />
                 </div>
-                <div className="order-tabs-content" id="cancelled">
+                <div
+                  className={`order-tabs-content ${
+                    activeTab === "cancelled" ? "" : "hidden"
+                  }`}
+                  id="cancelled"
+                >
                   Cancelled content
                 </div>
-                <div className="order-tabs-content" id="completed">
+                <div
+                  className={`order-tabs-content ${
+                    activeTab === "completed" ? "" : "hidden"
+                  }`}
+                  id="completed"
+                >
                   Completed content
                 </div>
               </div>

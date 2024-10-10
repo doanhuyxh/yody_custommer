@@ -94,24 +94,25 @@ const OrderItem = ({ order }) => {
   return (
     <OrderItemWrapper>
       <div className="order-item-details">
-        <h3 className="text-x order-item-title">Order no: {order.order_no}</h3>
+        <h3 className="text-x order-item-title">
+          Mã đơn hàng: {order.order_no}
+        </h3>
         <div className="order-info-group flex flex-wrap">
           <div className="order-info-item">
-            <span className="text-gray font-semibold">Order Date:</span>
+            <span className="text-gray font-semibold">Thời gian đặt hàng:</span>
             <span className="text-silver">{order.order_date}</span>
           </div>
           <div className="order-info-item">
-            <span className="text-gray font-semibold">Order Status:</span>
+            <span className="text-gray font-semibold">
+              Trạng thái đơn hàng:
+            </span>
             <span className="text-silver">{order.status}</span>
           </div>
+
           <div className="order-info-item">
             <span className="text-gray font-semibold">
-              Estimated Delivery Date:
+              Phương thức thanh toán:
             </span>
-            <span className="text-silver">{order.delivery_date}</span>
-          </div>
-          <div className="order-info-item">
-            <span className="text-gray font-semibold">Method:</span>
             <span className="text-silver">{order.payment_method}</span>
           </div>
         </div>
