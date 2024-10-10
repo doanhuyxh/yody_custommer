@@ -138,7 +138,7 @@ const Billing = () => {
 
     fetchCart();
     fetchUserInfo();
-  }, []);
+  }, [customer.id]);
 
   useEffect(() => {
     const fetchProductPrices = async () => {

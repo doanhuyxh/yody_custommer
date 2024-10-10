@@ -76,12 +76,16 @@ const ProductsContentRight = styled.div`
   }
 `;
 
-
 const ProductListScreen = () => {
   const breadcrumbItems = [
     { label: "Trang chủ", link: "/" },
     { label: "Sản phẩm", link: "" },
   ];
+
+  const params = new URLSearchParams(window.location.search);
+  const slugProduct = params.get("search");
+
+  console.log(slugProduct);
 
   const [products, setProducts] = useState([]);
   // const [page, setPage] = useState(1);

@@ -143,6 +143,36 @@ const ProductSizeWrapper = styled.div`
       }
     }
   }
+
+  .prod-size-chip_disabled_box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    @media (max-width: ${breakpoints.sm}) {
+      width: 32px;
+      height: 32px;
+    }
+
+    /* Create diagonal lines for the 'X' */
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 1px; /* Adjust thickness of the lines */
+      background-color: rgba(0, 0, 0, 0.5); /* Color of the cross */
+    }
+
+    &::after {
+      transform: rotate(-45deg); /* Second line rotated */
+    }
+  }
 `;
 
 const ProductColorWrapper = styled.div`
@@ -206,6 +236,8 @@ const ProductDetailsScreen = () => {
   const [colors, setColors] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [availableSizesForSelectedColor, setAvailableSizesForSelectedColor] =
+    useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -268,15 +300,29 @@ const ProductDetailsScreen = () => {
     availableColorIds.includes(color.id)
   );
 
-  const availableSizeIdsForSelectedColor = selectedColor
-    ? variants
-        .filter((variant) => variant.color_id === selectedColor)
-        .map((variant) => variant.size_id)
-    : [];
+  useEffect(() => {
+    const availableSizeIdsForSelectedColor = selectedColor
+      ? variants
+          .filter((variant) => variant.color_id === selectedColor)
+          .map((variant) => variant.size_id)
+      : [];
 
-  const availableSizesForSelectedColor = sizes.filter((size) =>
-    availableSizeIdsForSelectedColor.includes(size.id)
-  );
+    const updatedAvailableSizes = sizes.map((size) => ({
+      ...size,
+      disabled: !availableSizeIdsForSelectedColor.includes(size.id),
+    }));
+
+    setAvailableSizesForSelectedColor(updatedAvailableSizes);
+
+    if (
+      selectedSize &&
+      (updatedAvailableSizes.find((size) => size.id === selectedSize)
+        ?.disabled ||
+        !availableSizeIdsForSelectedColor.includes(selectedSize))
+    ) {
+      setSelectedSize(null);
+    }
+  }, [selectedColor, sizes, variants, selectedSize]);
 
   const filteredImages = selectedColor
     ? images.filter((image) => image.color_id === selectedColor)
@@ -341,16 +387,32 @@ const ProductDetailsScreen = () => {
               </div>
               <div className="prod-size-list flex items-center">
                 {availableSizesForSelectedColor.map((size, index) => (
-                  <div className="prod-size-item" key={index}>
-                    <input
-                      type="radio"
-                      name="size"
-                      onChange={() => setSelectedSize(size.id)}
-                      checked={selectedSize === size.id}
-                    />
-                    <span className="flex items-center justify-center font-medium text-outerspace text-sm">
-                      {size.name}
-                    </span>
+                  <div
+                    className="prod-size-item"
+                    key={index}
+                    style={{
+                      cursor: size.disabled ? "not-allowed" : "pointer",
+                      opacity: size.disabled ? 0.5 : 1,
+                    }}
+                  >
+                    <div
+                      style={{
+                        pointerEvents: size.disabled ? "none" : "auto",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="size"
+                        onChange={() => setSelectedSize(size.id)}
+                        checked={selectedSize === size.id}
+                      />
+                      <span className="flex items-center justify-center font-medium text-outerspace text-sm">
+                        {size.name}
+                      </span>
+                      {size.disabled && (
+                        <div className="prod-size-chip_disabled_box"></div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -370,7 +432,6 @@ const ProductDetailsScreen = () => {
                       name="colors"
                       onChange={() => {
                         setSelectedColor(color.id);
-                        setSelectedSize(null);
                       }}
                       checked={selectedColor === color.id}
                     />
