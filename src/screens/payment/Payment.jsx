@@ -73,8 +73,8 @@ const Payment = () => {
               data.data.forEach(async (cart) => {
                 await deleteProductInCart(cart.id);
               });
+              getCartCount();
             }
-            getCartCount();
           }
         } catch (error) {
           console.error("Error adding order:", error);
