@@ -92,3 +92,27 @@ export const getVariant = async (id) => {
 export const searchProduct = async (term) => {
   return await axios.get(`api/product/search/${term}?page=1&pageSize=5`);
 };
+
+export const filterProduct = async (
+  page,
+  pageSize,
+  color,
+  size,
+  slugCategory,
+  minPrice,
+  maxPrice
+) => {
+  return await axios.get(
+    `api/product/filter?page=${page}&pageSize=${pageSize}&color=${color}&size=${size}&slug=${slugCategory}&minPrice=${minPrice}&maxPrice=${maxPrice}`
+  );
+};
+
+export const vnpayPayment = async (totalPrice) => {
+  return await axios.post("http://localhost:5000/api/vnpay-payment", {
+    total_price: totalPrice,
+  });
+};
+
+export const addOrder = async (data) => {
+  return await axios.post("api/order/add_order", data);
+};

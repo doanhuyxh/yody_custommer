@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import {
   ColorsFilter,
@@ -7,9 +8,19 @@ import {
   ProductCategoryFilter,
   SizesFilter,
 } from "../../styles/filter";
-import { getColor, getSize, getCategories } from "../../services/apiService";
+import {
+  getColor,
+  getSize,
+  getCategories,
+  filterProduct,
+} from "../../services/apiService";
 
-const ProductFilter = () => {
+const ProductFilter = ({ setProductsFiltered }) => {
+  const params = new URLSearchParams(window.location.search);
+  const slugProduct = params.get("search");
+
+  console.log(slugProduct);
+
   const [isProductFilterOpen, setProductFilterOpen] = useState(true);
   const [isPriceFilterOpen, setPriceFilterOpen] = useState(true);
   const [isColorFilterOpen, setColorFilterOpen] = useState(true);
@@ -18,6 +29,10 @@ const ProductFilter = () => {
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [categories, setCategories] = useState([]);
+
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
     const fetchColors = async () => {
@@ -96,6 +111,31 @@ const ProductFilter = () => {
     return (value / max) * 100 + "%";
   };
 
+  useEffect(() => {
+    const fetchFilteredProducts = async () => {
+      try {
+        const page = 1;
+        const pageSize = 12;
+
+        const data = await filterProduct(
+          page,
+          pageSize,
+          selectedColor,
+          selectedSize,
+          selectedCategory,
+          minRange,
+          maxRange
+        );
+
+        setProductsFiltered(data.data);
+      } catch (error) {
+        console.error("Error fetching filtered products:", error);
+      }
+    };
+
+    fetchFilteredProducts();
+  }, [selectedCategory, selectedColor, selectedSize, minRange, maxRange]);
+
   return (
     <>
       <ProductCategoryFilter>
@@ -115,20 +155,19 @@ const ProductFilter = () => {
           </span>
         </FilterTitle>
         <FilterWrap className={`${!isProductFilterOpen ? "hide" : "show"}`}>
-          {categories?.map((category, index) => {
-            return (
-              <div className="product-filter-item" key={index}>
-                <button
-                  type="button"
-                  className="filter-item-head w-full flex items-center justify-between"
-                >
-                  <span className="filter-head-title text-base text-gray font-semibold">
-                    {category.Name}
-                  </span>
-                </button>
-              </div>
-            );
-          })}
+          {categories.map((category) => (
+            <div key={category.Id} className="product-filter-item">
+              <button
+                type="button"
+                className={`filter-item-head w-full flex items-center justify-between ${
+                  selectedCategory === category.Slug ? "selected" : ""
+                }`}
+                onClick={() => setSelectedCategory(category.Slug)}
+              >
+                <span className="filter-head-title">{category.Name}</span>
+              </button>
+            </div>
+          ))}
         </FilterWrap>
       </ProductCategoryFilter>
 
@@ -226,7 +265,11 @@ const ProductFilter = () => {
                 className="colors-item text-center flex flex-col justify-center items-center"
                 key={index}
               >
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  checked={selectedColor === color.id}
+                  onChange={() => setSelectedColor(color.id)}
+                />
                 <span
                   className="color-box"
                   style={{
@@ -238,6 +281,7 @@ const ProductFilter = () => {
           </div>
         </FilterWrap>
       </ColorsFilter>
+
       <SizesFilter>
         <FilterTitle
           className="flex items-center justify-between"
@@ -261,7 +305,11 @@ const ProductFilter = () => {
                 className="sizes-item text-sm font-semibold text-outerspace w-full"
                 key={index}
               >
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  checked={selectedSize === size.id}
+                  onChange={() => setSelectedSize(size.id)}
+                />
                 <span className="flex items-center justify-center uppercase">
                   {size.name}
                 </span>

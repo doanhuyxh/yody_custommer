@@ -61,6 +61,10 @@ export const ProductCategoryFilter = styled.div`
     }
   }
 
+  .filter-item-head.selected {
+    color: ${defaultTheme.color_sea_green};
+  }
+
   .filter-title {
     border-top: 0;
   }

@@ -7,12 +7,12 @@ import {
   updateProfile,
   getUserInfo,
   getShoppingCart,
-  getVariant,
-  getProductById,
+  vnpayPayment,
 } from "../../services/apiService";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { addOrder } from "../../redux/slices/orderSlice";
 
 const BillingOrderWrapper = styled.div`
   gap: 60px;
@@ -105,6 +105,8 @@ const BillingDetailsWrapper = styled.div`
 `;
 
 const Billing = () => {
+  const dispatch = useDispatch();
+
   const customer = useSelector((state) => state.user.customer);
 
   const [name, setName] = useState("");
@@ -142,20 +144,16 @@ const Billing = () => {
 
   useEffect(() => {
     const fetchProductPrices = async () => {
-      const variantPromises = cart.map((item) =>
-        getVariant(item.product_variant_id)
-      ); // Lấy dữ liệu variant
-      const variants = await Promise.all(variantPromises); // Đợi tất cả promise hoàn thành
-      const productPromises = variants.map((variant) =>
-        getProductById(variant.data.product_id)
-      ); // Lấy chi tiết sản phẩm
-      const products = await Promise.all(productPromises); // Đợi chi tiết sản phẩm
-
       // Tính toán subtotal
-      const total = products.reduce((acc, product, index) => {
-        const price = product.data.Product.price; // Lấy giá của sản phẩm
-        const quantity = cart[index].quantity; // Lấy số lượng từ cart
-        return acc + price * quantity; // Cộng vào tổng
+      const total = cart.reduce((acc, product) => {
+        const price = product.price; // Lấy giá của sản phẩm
+        const quantity = product.quantity; // Lấy số lượng từ cart
+
+        // Kiểm tra số lượng để tránh tính toán sai
+        if (quantity > 0) {
+          return acc + price * quantity; // Cộng vào tổng
+        }
+        return acc; // Nếu số lượng là 0, không cộng vào tổng
       }, 0);
 
       setSubtotal(total); // Cập nhật subtotal
@@ -166,7 +164,7 @@ const Billing = () => {
     }
   }, [cart]);
 
-  const handleCheckout = (e) => {
+  const handleCheckout = async (e) => {
     e.preventDefault();
 
     if (!name || !phoneNumber || !address) {
@@ -174,7 +172,22 @@ const Billing = () => {
       return;
     }
 
-    toast.success("Thanh toán thành công");
+    const items = cart.map((item) => ({
+      product_variant_id: item.product_variant_id,
+      quantity: item.quantity,
+      price: item.price,
+    }));
+
+    dispatch(
+      addOrder({
+        items,
+        shipping_address: address,
+        total_amount: subtotal,
+      })
+    );
+
+    const data = await vnpayPayment(subtotal);
+    window.location.href = data.data;
   };
 
   return (

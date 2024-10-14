@@ -82,14 +82,10 @@ const ProductListScreen = () => {
     { label: "Sản phẩm", link: "" },
   ];
 
-  const params = new URLSearchParams(window.location.search);
-  const slugProduct = params.get("search");
-
-  console.log(slugProduct);
-
   const [products, setProducts] = useState([]);
   // const [page, setPage] = useState(1);
   // const [pageSize, setPageSize] = useState(12);
+  const [productsFiltered, setProductsFiltered] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -104,16 +100,25 @@ const ProductListScreen = () => {
     fetchProducts();
   }, []);
 
+  console.log(products);
+  console.log(productsFiltered);
+
   return (
     <main className="page-py-spacing">
       <Container>
         <Breadcrumb items={breadcrumbItems} />
         <ProductsContent className="grid items-start">
           <ProductsContentLeft>
-            <ProductFilter />
+            <ProductFilter setProductsFiltered={setProductsFiltered} />
           </ProductsContentLeft>
           <ProductsContentRight>
-            <ProductList products={products.slice(0, 12)} />
+            <ProductList
+              products={
+                productsFiltered?.length > 0
+                  ? productsFiltered
+                  : products.slice(0, 12)
+              }
+            />
           </ProductsContentRight>
         </ProductsContent>
       </Container>

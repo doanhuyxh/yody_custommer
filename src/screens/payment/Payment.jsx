@@ -1,5 +1,9 @@
 import styled from "styled-components";
 import { BaseButtonGreen } from "../../styles/button";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { addOrder } from "../../services/apiService";
+import { useEffect } from "react";
 
 const PaymentWrapper = styled.div`
   display: flex;
@@ -44,8 +48,29 @@ const PaymentWrapper = styled.div`
 `;
 
 const Payment = () => {
+  const order = useSelector((state) => state.order);
+
   const params = new URLSearchParams(window.location.search);
   const vnp_TransactionStatus = params.get("vnp_TransactionStatus");
+  const vnp_TxnRef = params.get("vnp_TxnRef");
+
+  useEffect(() => {
+    const fetchAddOrder = async () => {
+      if (vnp_TransactionStatus === "00") {
+        try {
+          const newOrder = {
+            ...order,
+            order_code: vnp_TxnRef,
+          };
+          await addOrder(newOrder);
+        } catch (error) {
+          console.error("Error adding order:", error);
+        }
+      }
+    };
+
+    fetchAddOrder();
+  }, [vnp_TxnRef]);
 
   return (
     <PaymentWrapper>
@@ -67,11 +92,9 @@ const Payment = () => {
           </p>
         </>
       )}
-      <BaseButtonGreen>
-        <a href="/" className="text-white">
-          Quay về trang chủ
-        </a>
-      </BaseButtonGreen>
+      <Link to={"/"} className="text-white">
+        <BaseButtonGreen>Quay về trang chủ</BaseButtonGreen>
+      </Link>
     </PaymentWrapper>
   );
 };
