@@ -242,7 +242,7 @@ const Header = () => {
   useEffect(() => {
     const fetchImageUrls = async () => {
       try {
-        const imagePromises = suggestions.map(
+        const imagePromises = suggestions?.map(
           (product) => getImgUrlBySlug(product.slug) // Gọi API với slug của từng sản phẩm
         );
 
@@ -262,7 +262,7 @@ const Header = () => {
       }
     };
 
-    if (suggestions.length > 0) {
+    if (suggestions?.length > 0) {
       fetchImageUrls();
     }
   }, [suggestions]);
@@ -347,7 +347,7 @@ const Header = () => {
               {dropdownVisible && suggestions?.length > 0 && (
                 <div ref={dropdownRef} className="suggestions-dropdown">
                   <ul className="suggestions-list">
-                    {suggestions.map((product) => (
+                    {suggestions?.map((product) => (
                       <li key={product.id} className="suggestion-item">
                         <Link
                           to={`/product/details/${product.id}`}

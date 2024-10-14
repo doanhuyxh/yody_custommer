@@ -96,7 +96,7 @@ const ProductPreview = ({ previewImages }) => {
   return (
     <ProductPreviewWrapper className="grid items-center">
       <div className="preview-items w-full">
-        {previewImages.map((previewImage) => {
+        {previewImages?.map((previewImage) => {
           return (
             <div
               className="preview-item-wrapper"

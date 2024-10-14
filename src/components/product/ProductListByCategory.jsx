@@ -18,7 +18,7 @@ const ProductListByCategory = ({ products }) => {
   return (
     <ProductListWrapper className="grid">
       {products?.length > 0 ? (
-        products.map((product) => (
+        products?.map((product) => (
           <ProductItemByCategory key={product.id} product={product} />
         ))
       ) : (

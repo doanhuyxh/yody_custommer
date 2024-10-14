@@ -7,23 +7,12 @@ const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cartCount, setCartCount] = useState(0);
 
-  useEffect(() => {
-    const getCartCount = async () => {
-      const data = await getShoppingCart();
-      if (data.code === 20001) {
-        setCartCount(data.data.length);
-      }
-    };
-
-    getCartCount();
-  }, []);
-
   const addToCart = async (variantId) => {
     const addData = await postAddToCart(variantId);
     if (addData.code === 20001) {
       const cartData = await getShoppingCart();
       if (cartData.code === 20001) {
-        setCartCount(cartData.data.length);
+        setCartCount(cartData.data?.length);
       }
       return true;
     }
@@ -36,9 +25,20 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  const getCartCount = async () => {
+    const data = await getShoppingCart();
+    if (data.code === 20001) {
+      setCartCount(data.data?.length);
+    }
+  };
+
+  useEffect(() => {
+    getCartCount();
+  }, []);
+
   return (
     <CartContext.Provider
-      value={{ cartCount, addToCart, updateCartCountWhenDelete }}
+      value={{ cartCount, addToCart, updateCartCountWhenDelete, getCartCount }}
     >
       {children}
     </CartContext.Provider>

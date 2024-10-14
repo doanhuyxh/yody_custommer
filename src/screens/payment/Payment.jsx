@@ -4,6 +4,8 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { addOrder } from "../../services/apiService";
 import { useEffect } from "react";
+import { getCart, deleteProductInCart } from "../../services/apiService";
+import { useCart } from "../../context/CartContext";
 
 const PaymentWrapper = styled.div`
   display: flex;
@@ -48,6 +50,8 @@ const PaymentWrapper = styled.div`
 `;
 
 const Payment = () => {
+  const { getCartCount } = useCart();
+
   const order = useSelector((state) => state.order);
 
   const params = new URLSearchParams(window.location.search);
@@ -62,7 +66,16 @@ const Payment = () => {
             ...order,
             order_code: vnp_TxnRef,
           };
-          await addOrder(newOrder);
+          const data = await addOrder(newOrder);
+          if (data.data) {
+            const data = await getCart();
+            if (data.data) {
+              data.data.forEach(async (cart) => {
+                await deleteProductInCart(cart.id);
+              });
+            }
+            getCartCount();
+          }
         } catch (error) {
           console.error("Error adding order:", error);
         }

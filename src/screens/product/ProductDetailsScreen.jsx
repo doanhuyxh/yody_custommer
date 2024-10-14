@@ -293,7 +293,7 @@ const ProductDetailsScreen = () => {
   }, [variants]);
 
   const availableColorIds = Array.from(
-    new Set(variants.map((variant) => variant.color_id))
+    new Set(variants?.map((variant) => variant.color_id))
   );
 
   const availableColors = colors.filter((color) =>
@@ -307,7 +307,7 @@ const ProductDetailsScreen = () => {
           .map((variant) => variant.size_id)
       : [];
 
-    const updatedAvailableSizes = sizes.map((size) => ({
+    const updatedAvailableSizes = sizes?.map((size) => ({
       ...size,
       disabled: !availableSizeIdsForSelectedColor.includes(size.id),
     }));
@@ -366,7 +366,7 @@ const ProductDetailsScreen = () => {
             <h2 className="prod-title">{product.name}</h2>
             <div className="flex items-center rating-and-comments flex-wrap">
               <div className="prod-cate flex items-center text-gray text-xs">
-                {catagories.map((catagory) => (
+                {catagories?.map((catagory) => (
                   <span key={catagory.Id}>{catagory.Name}</span>
                 ))}
               </div>
@@ -386,7 +386,7 @@ const ProductDetailsScreen = () => {
                 </p>
               </div>
               <div className="prod-size-list flex items-center">
-                {availableSizesForSelectedColor.map((size, index) => (
+                {availableSizesForSelectedColor?.map((size, index) => (
                   <div
                     className="prod-size-item"
                     key={index}
@@ -425,7 +425,7 @@ const ProductDetailsScreen = () => {
                 </p>
               </div>
               <div className="prod-colors-list flex items-center">
-                {availableColors.map((color, index) => (
+                {availableColors?.map((color, index) => (
                   <div className="prod-colors-item" key={index}>
                     <input
                       type="radio"

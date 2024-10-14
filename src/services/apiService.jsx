@@ -66,17 +66,23 @@ export const getColor = async () => {
   return axios.get("api/color");
 };
 
+export const getCart = async () => {
+  return axios.get("api/shopping_card");
+};
+
 export const postAddToCart = async (product_variant_id) => {
   return await axios.post("/api/shopping_card/add_to_card", {
     product_variant_id,
   });
 };
+
 export const updateProductInCart = async ({ id, quantity }) => {
   return await axios.post("/api/shopping_card/update_card", {
     id,
     quantity,
   });
 };
+
 export const deleteProductInCart = async (id) => {
   return await axios.get(`api/shopping_card/delete?id=${id}`);
 };

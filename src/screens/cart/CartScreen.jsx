@@ -70,7 +70,7 @@ const CartScreen = () => {
 
   useEffect(() => {
     const fetchProductPrices = async () => {
-      const variantPromises = cart.map((item) =>
+      const variantPromises = cart?.map((item) =>
         getVariant(item.product_variant_id)
       ); // Lấy dữ liệu variant
       const variants = await Promise.all(variantPromises); // Đợi tất cả promise hoàn thành
@@ -90,13 +90,11 @@ const CartScreen = () => {
       setSubtotal(total); // Cập nhật subtotal
     };
 
-    if (cart.length > 0) {
-      fetchProductPrices(); // Chỉ gọi hàm nếu cart không rỗng
-    }
+    fetchProductPrices(); // Chỉ gọi hàm nếu cart không rỗng
   }, [cart]);
 
   const handleQuantityChange = (id, newQuantity) => {
-    const updatedCart = cart.map((item) =>
+    const updatedCart = cart?.map((item) =>
       item.id === id ? { ...item, quantity: newQuantity } : item
     );
     setCart(updatedCart);

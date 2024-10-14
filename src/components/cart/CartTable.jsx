@@ -79,8 +79,8 @@ const CartTable = ({ cartItems, onQuantityChange, onItemDelete }) => {
           </tr>
         </thead>
         <tbody>
-          {cartItems.length > 0 ? (
-            cartItems.map((cartItem) => {
+          {cartItems?.length > 0 ? (
+            cartItems?.map((cartItem) => {
               return (
                 <CartItem
                   key={cartItem.id}

@@ -155,7 +155,7 @@ const ProductFilter = ({ setProductsFiltered }) => {
           </span>
         </FilterTitle>
         <FilterWrap className={`${!isProductFilterOpen ? "hide" : "show"}`}>
-          {categories.map((category) => (
+          {categories?.map((category) => (
             <div key={category.Id} className="product-filter-item">
               <button
                 type="button"
@@ -260,7 +260,7 @@ const ProductFilter = ({ setProductsFiltered }) => {
         </FilterTitle>
         <FilterWrap className={`${!isColorFilterOpen ? "hide" : "show"}`}>
           <div className="colors-list grid">
-            {colors.map((color, index) => (
+            {colors?.map((color, index) => (
               <div
                 className="colors-item text-center flex flex-col justify-center items-center"
                 key={index}
@@ -300,7 +300,7 @@ const ProductFilter = ({ setProductsFiltered }) => {
         </FilterTitle>
         <FilterWrap className={`${!isSizeFilterOpen ? "hide" : "show"}`}>
           <div className="sizes-list grid text-center justify-center">
-            {sizes.map((size, index) => (
+            {sizes?.map((size, index) => (
               <div
                 className="sizes-item text-sm font-semibold text-outerspace w-full"
                 key={index}

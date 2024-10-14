@@ -89,7 +89,7 @@ const CheckoutSummary = ({ cartItems, subtotal }) => {
   useEffect(() => {
     const fetchData = async () => {
       const fetchedItems = await Promise.all(
-        cartItems.map(async (item) => {
+        cartItems?.map(async (item) => {
           const variantData = await getVariant(item.product_variant_id);
           const productData = await getProductById(variantData.data.product_id);
           const sizeData = await getSize();

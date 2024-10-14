@@ -18,7 +18,7 @@ const ProductList = ({ products }) => {
   return (
     <ProductListWrapper className="grid">
       {products?.length > 0 ? (
-        products.map((product, index) =>
+        products?.map((product, index) =>
           product && product.Product ? (
             <ProductItem key={product.Product.id} product={product} />
           ) : (

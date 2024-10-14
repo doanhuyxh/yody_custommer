@@ -159,7 +159,7 @@ const Billing = () => {
       setSubtotal(total); // Cập nhật subtotal
     };
 
-    if (cart.length > 0) {
+    if (cart?.length > 0) {
       fetchProductPrices(); // Chỉ gọi hàm nếu cart không rỗng
     }
   }, [cart]);
@@ -172,7 +172,7 @@ const Billing = () => {
       return;
     }
 
-    const items = cart.map((item) => ({
+    const items = cart?.map((item) => ({
       product_variant_id: item.product_variant_id,
       quantity: item.quantity,
       price: item.price,
