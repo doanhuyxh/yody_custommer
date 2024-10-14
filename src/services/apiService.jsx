@@ -108,7 +108,7 @@ export const filterProduct = async (
 };
 
 export const vnpayPayment = async (totalPrice) => {
-  return await axios.post("http://localhost:5000/api/vnpay-payment", {
+  return await axios.post("https://vnpay.lokid.xyz/api/vnpay-payment", {
     total_price: totalPrice,
   });
 };
