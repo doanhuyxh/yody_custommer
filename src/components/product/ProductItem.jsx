@@ -41,9 +41,14 @@ const ProductItem = ({ product }) => {
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
-    // Lấy ảnh từ mảng Images, chọn ảnh đầu tiên làm hình chính.
-    if (Images?.length > 0) {
-      setImageUrl(Images[0].link); // Đặt đường dẫn ảnh đầu tiên
+    if (
+      Images?.length > 0 &&
+      typeof Images[0] === "object" &&
+      "link" in Images[0]
+    ) {
+      setImageUrl(Images[0].link);
+    } else {
+      setImageUrl(Images[0]);
     }
   }, [Images]);
 

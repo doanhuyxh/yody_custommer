@@ -6,6 +6,7 @@ import { breakpoints, defaultTheme } from "../../styles/themes/default";
 import ProductFilter from "../../components/product/ProductFilter";
 import { useEffect, useState } from "react";
 import { getProducts } from "../../services/apiService";
+import { useLocation } from "react-router-dom";
 
 const ProductsContent = styled.div`
   grid-template-columns: 320px auto;
@@ -77,6 +78,11 @@ const ProductsContentRight = styled.div`
 `;
 
 const ProductListScreen = () => {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const slugProduct = params.get("search");
+  console.log("slugProduct", slugProduct);
+
   const breadcrumbItems = [
     { label: "Trang chủ", link: "/" },
     { label: "Sản phẩm", link: "" },
@@ -100,8 +106,9 @@ const ProductListScreen = () => {
     fetchProducts();
   }, []);
 
-  console.log(products);
-  console.log(productsFiltered);
+  useEffect(() => {
+    console.log("productsFiltered", productsFiltered);
+  }, [productsFiltered]);
 
   return (
     <main className="page-py-spacing">

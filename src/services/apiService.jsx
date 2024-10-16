@@ -102,14 +102,13 @@ export const searchProduct = async (term) => {
 export const filterProduct = async (
   page,
   pageSize,
-  color,
-  size,
-  slugCategory,
+  category,
+  slugProduct,
   minPrice,
   maxPrice
 ) => {
   return await axios.get(
-    `api/product/filter?page=${page}&pageSize=${pageSize}&color=${color}&size=${size}&slug=${slugCategory}&minPrice=${minPrice}&maxPrice=${maxPrice}`
+    `api/product/filter?page=${page}&pageSize=${pageSize}&category=${category}&slug=${slugProduct}&minPrice=${minPrice}&maxPrice=${maxPrice}`
   );
 };
 
