@@ -70,10 +70,14 @@ const Payment = () => {
           if (data.data) {
             const data = await getCart();
             if (data.data) {
-              data.data.forEach(async (cart) => {
-                await deleteProductInCart(cart.id);
-              });
-              getCartCount();
+              const cartData = await getCart();
+              if (cartData.data) {
+                // Sử dụng Promise.all để đảm bảo tất cả sản phẩm đều được xóa
+                await Promise.all(
+                  cartData.data.map((cart) => deleteProductInCart(cart.id))
+                );
+                await getCartCount(); // Cập nhật số lượng giỏ hàng sau khi xóa
+              }
             }
           }
         } catch (error) {
