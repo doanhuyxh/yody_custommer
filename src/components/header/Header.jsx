@@ -201,9 +201,9 @@ const Header = () => {
 
   const location = useLocation();
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [images, setImages] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const dropdownRef = useRef(null);
@@ -284,6 +284,17 @@ const Header = () => {
     }
   };
 
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (value.trim()) {
+      setDropdownVisible(true); // Hiện dropdown khi có dữ liệu
+    } else {
+      setDropdownVisible(false); // Ẩn dropdown nếu không có dữ liệu
+    }
+  };
+
   return (
     <HeaderMainWrapper className="header flex items-center">
       <Container className="container">
@@ -331,7 +342,7 @@ const Header = () => {
                   className="input-control w-full"
                   placeholder="Tìm kiếm"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleInputChange}
                   onFocus={handleFocus}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
