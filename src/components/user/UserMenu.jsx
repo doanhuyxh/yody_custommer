@@ -74,7 +74,7 @@ const UserMenu = () => {
 
   const handleLogout = () => {
     dispatch(logout()); // Gọi action logout
-    navigate("/");
+    navigate("/sign_in");
   };
 
   return (

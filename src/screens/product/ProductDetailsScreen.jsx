@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useCart } from "../../context/CartContext";
+import { useSelector } from "react-redux";
 
 const DetailsScreenWrapper = styled.main`
   margin: 40px 0;
@@ -225,6 +226,8 @@ const ProductColorWrapper = styled.div`
 `;
 
 const ProductDetailsScreen = () => {
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+
   const { id } = useParams();
   const { addToCart } = useCart();
 
@@ -329,6 +332,11 @@ const ProductDetailsScreen = () => {
     : images;
 
   const handleAddToCart = async () => {
+    if (!isLoggedIn) {
+      window.location.href = "/sign_in";
+      return;
+    }
+
     if (selectedColor === null || selectedSize === null) {
       toast.error("Vui lòng chọn màu và kích thước!");
       return;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Container } from "../../styles/styles";
 import Breadcrumb from "../../components/common/Breadcrumb";
@@ -6,8 +6,8 @@ import { UserContent, UserDashboardWrapper } from "../../styles/user";
 import UserMenu from "../../components/user/UserMenu";
 import Title from "../../components/common/Title";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
-import { orderData } from "../../data/data";
 import OrderItemList from "../../components/user/OrderItemList";
+import { getOrders } from "../../services/apiService";
 
 const OrderListScreenWrapper = styled.div`
   .order-tabs-contents {
@@ -44,6 +44,34 @@ const breadcrumbItems = [
 
 const OrderListScreen = () => {
   const [activeTab, setActiveTab] = useState("active");
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Gọi API để lấy danh sách đơn hàng
+    const fetchOrders = async () => {
+      try {
+        const data = await getOrders(1, 10); // page 1, pageSize 10
+        if (data?.code === 20001) {
+          setOrders(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  const activeOrders = orders.filter((order) => order.status === "pending");
+  const cancelledOrders = orders.filter(
+    (order) => order.status === "cancelled"
+  );
+  const completedOrders = orders.filter(
+    (order) => order.status === "completed"
+  );
 
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
@@ -89,30 +117,50 @@ const OrderListScreen = () => {
               </div>
 
               <div className="order-tabs-contents">
-                <div
-                  className={`order-tabs-content ${
-                    activeTab === "active" ? "" : "hidden"
-                  }`}
-                  id="active"
-                >
-                  <OrderItemList orders={orderData} />
-                </div>
-                <div
-                  className={`order-tabs-content ${
-                    activeTab === "cancelled" ? "" : "hidden"
-                  }`}
-                  id="cancelled"
-                >
-                  Cancelled content
-                </div>
-                <div
-                  className={`order-tabs-content ${
-                    activeTab === "completed" ? "" : "hidden"
-                  }`}
-                  id="completed"
-                >
-                  Completed content
-                </div>
+                {loading ? (
+                  <p>Đang tải...</p>
+                ) : (
+                  <>
+                    <div
+                      className={`order-tabs-content ${
+                        activeTab === "active" ? "" : "hidden"
+                      }`}
+                      id="active"
+                    >
+                      {activeOrders.length > 0 ? (
+                        <OrderItemList orders={activeOrders} />
+                      ) : (
+                        <p>Không có đơn hàng đang xử lý.</p>
+                      )}
+                    </div>
+
+                    <div
+                      className={`order-tabs-content ${
+                        activeTab === "cancelled" ? "" : "hidden"
+                      }`}
+                      id="cancelled"
+                    >
+                      {cancelledOrders.length > 0 ? (
+                        <OrderItemList orders={cancelledOrders} />
+                      ) : (
+                        <p>Không có đơn hàng đã hủy.</p>
+                      )}
+                    </div>
+
+                    <div
+                      className={`order-tabs-content ${
+                        activeTab === "completed" ? "" : "hidden"
+                      }`}
+                      id="completed"
+                    >
+                      {completedOrders.length > 0 ? (
+                        <OrderItemList orders={completedOrders} />
+                      ) : (
+                        <p>Không có đơn hàng đã hoàn thành.</p>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </UserContent>

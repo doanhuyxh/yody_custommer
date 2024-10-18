@@ -7,7 +7,6 @@ import PasswordInput from "../../components/auth/PasswordInput";
 import { Link } from "react-router-dom";
 import { BaseButtonBlack } from "../../styles/button";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
-import { useNavigate } from "react-router-dom";
 import { login } from "../../redux/slices/userSlice";
 import { toast } from "react-toastify";
 import { postLogin } from "../../services/apiService";
@@ -46,10 +45,11 @@ const SignInScreenWrapper = styled.section`
 
 const SignInScreen = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const currentUrl = localStorage.getItem("currentUrl");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,7 +58,11 @@ const SignInScreen = () => {
       if (data.code === 20001) {
         dispatch(login(data.data)); // Gọi action login với data.data
         toast.success("Đăng nhập thành công!");
-        navigate("/");
+        if (currentUrl) {
+          window.location.href = currentUrl;
+        } else {
+          window.location.href = "/";
+        }
       } else if (data.code === 40001) {
         toast.error(data.data.error);
       } else if (data.code === 40004) {

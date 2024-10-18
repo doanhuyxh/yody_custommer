@@ -118,6 +118,10 @@ export const vnpayPayment = async (totalPrice) => {
   });
 };
 
+export const getOrders = async (page, pageSize) => {
+  return await axios.get(`api/order?page=${page}&pageSize=${pageSize}`);
+};
+
 export const addOrder = async (data) => {
   return await axios.post("api/order/add_order", data);
 };

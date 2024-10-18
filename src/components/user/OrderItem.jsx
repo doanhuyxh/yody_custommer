@@ -1,8 +1,14 @@
 import styled from "styled-components";
 import PropTypes from "prop-types";
-import { currencyFormat } from "../../utils/helper";
 import { BaseLinkGreen } from "../../styles/button";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
+import {
+  getVariant,
+  getColor,
+  getSize,
+  getProductById,
+} from "../../services/apiService";
+import { useEffect, useState } from "react";
 
 const OrderItemWrapper = styled.div`
   margin: 30px 0;
@@ -91,16 +97,45 @@ const OrderItemWrapper = styled.div`
 `;
 
 const OrderItem = ({ order }) => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const productPromises = order.order_detail.map(async (detail) => {
+        const product = await getProductById(detail.product_id);
+        const variant = await getVariant(detail.product_variant_id);
+        const colors = await getColor();
+        const sizes = await getSize();
+
+        return {
+          product: product.data,
+          color: colors.data.find(
+            (color) => color.id === variant.data.color_id
+          ),
+          size: sizes.data.find((size) => size.id === variant.data.size_id),
+          detail,
+        };
+      });
+
+      const fetchedProducts = await Promise.all(productPromises);
+      setProducts(fetchedProducts);
+    };
+
+    fetchData();
+  }, [order]);
+
+  console.log(products);
+
   return (
     <OrderItemWrapper>
       <div className="order-item-details">
-        <h3 className="text-x order-item-title">
-          Mã đơn hàng: {order.order_no}
-        </h3>
+        <h3 className="text-x order-item-title">Mã đơn hàng: {order.id}</h3>
         <div className="order-info-group flex flex-wrap">
           <div className="order-info-item">
             <span className="text-gray font-semibold">Thời gian đặt hàng:</span>
-            <span className="text-silver">{order.order_date}</span>
+            <span className="text-silver">
+              {new Date(order.order_date).toLocaleDateString("vi-VN")}
+            </span>
           </div>
           <div className="order-info-item">
             <span className="text-gray font-semibold">
@@ -108,45 +143,52 @@ const OrderItem = ({ order }) => {
             </span>
             <span className="text-silver">{order.status}</span>
           </div>
-
           <div className="order-info-item">
             <span className="text-gray font-semibold">
               Phương thức thanh toán:
             </span>
-            <span className="text-silver">{order.payment_method}</span>
+            <span className="text-silver">Chuyển khoản VNPay</span>
           </div>
         </div>
       </div>
       <div className="order-overview flex justify-between">
-        <div className="order-overview-content grid">
-          <div className="order-overview-img">
-            <img
-              src={order.items[0].imgSource}
-              alt=""
-              className="object-fit-cover"
-            />
+        {products.map(({ product, color, size, detail }) => (
+          <div key={detail.id} className="order-overview-content grid">
+            <div className="order-overview-img">
+              <img
+                src={`https://api.yody.lokid.xyz${product?.Images[0]?.link}`}
+                alt={product?.name}
+                className="object-fit-cover"
+              />
+            </div>
+            <div className="order-overview-info">
+              <ul>
+                <li className="font-semibold text-base">
+                  <span>Màu sắc:</span>
+                  <span className="text-silver">{color?.name}</span>
+                </li>
+                <li className="font-semibold text-base">
+                  <span>Kích thước:</span>
+                  <span className="text-silver">{size?.name}</span>
+                </li>
+                <li className="font-semibold text-base">
+                  <span>Số lượng:</span>
+                  <span className="text-silver">{detail.quantity}</span>
+                </li>
+                <li className="font-semibold text-base">
+                  <span>Tổng:</span>
+                  <span className="text-silver">
+                    {(detail.price * detail.quantity).toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </span>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="order-overview-info">
-            <h4 className="text-xl">{order.items[0].name}</h4>
-            <ul>
-              <li className="font-semibold text-base">
-                <span>Colour:</span>
-                <span className="text-silver">{order.items[0].color}</span>
-              </li>
-              <li className="font-semibold text-base">
-                <span>Qty:</span>
-                <span className="text-silver">{order.items[0].quantity}</span>
-              </li>
-              <li className="font-semibold text-base">
-                <span>Total:</span>
-                <span className="text-silver">
-                  {currencyFormat(order.items[0].price)}
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <BaseLinkGreen to="/order_detail">View Detail</BaseLinkGreen>
+        ))}
+        <BaseLinkGreen to="/order_detail">Xem Chi Tiết</BaseLinkGreen>
       </div>
     </OrderItemWrapper>
   );

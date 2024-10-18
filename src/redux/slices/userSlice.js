@@ -31,6 +31,7 @@ const userSlice = createSlice({
       state.isLoggedIn = false; // Cập nhật trạng thái đăng nhập
 
       localStorage.removeItem("user");
+      localStorage.removeItem("order");
     },
   },
 });
