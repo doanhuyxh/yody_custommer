@@ -63,6 +63,7 @@ const OrderItemWrapper = styled.div`
   .order-overview {
     margin: 28px 0;
     gap: 12px;
+    flex-wrap: wrap;
 
     @media (max-width: ${breakpoints.lg}) {
       margin: 20px 0;
@@ -129,7 +130,7 @@ const OrderItem = ({ order }) => {
   return (
     <OrderItemWrapper>
       <div className="order-item-details">
-        <h3 className="text-x order-item-title">Mã đơn hàng: {order.id}</h3>
+        <h3 className="text-x order-item-title">Mã đơn hàng: #{order.id}</h3>
         <div className="order-info-group flex flex-wrap">
           <div className="order-info-item">
             <span className="text-gray font-semibold">Thời gian đặt hàng:</span>
@@ -152,43 +153,50 @@ const OrderItem = ({ order }) => {
         </div>
       </div>
       <div className="order-overview flex justify-between">
-        {products.map(({ product, color, size, detail }) => (
-          <div key={detail.id} className="order-overview-content grid">
-            <div className="order-overview-img">
-              <img
-                src={`https://api.yody.lokid.xyz${product?.Images[0]?.link}`}
-                alt={product?.name}
-                className="object-fit-cover"
-              />
+        <div className="flex flex-col" style={{ gap: 20 }}>
+          {products.map(({ product, color, size, detail }) => (
+            <div key={detail.id} className="order-overview-content grid">
+              <div className="order-overview-img">
+                <img
+                  src={`https://api.yody.lokid.xyz${product?.Images[0]?.link}`}
+                  alt={product?.name}
+                  className="object-fit-cover"
+                />
+              </div>
+              <div className="order-overview-info">
+                <ul>
+                  <li className="font-semibold text-base">
+                    <span>Màu sắc:</span>
+                    <span className="text-silver">{color?.name}</span>
+                  </li>
+                  <li className="font-semibold text-base">
+                    <span>Kích thước:</span>
+                    <span className="text-silver">{size?.name}</span>
+                  </li>
+                  <li className="font-semibold text-base">
+                    <span>Số lượng:</span>
+                    <span className="text-silver">{detail.quantity}</span>
+                  </li>
+                  <li className="font-semibold text-base">
+                    <span>Tổng:</span>
+                    <span className="text-silver">
+                      {(detail.price * detail.quantity).toLocaleString(
+                        "vi-VN",
+                        {
+                          style: "currency",
+                          currency: "VND",
+                        }
+                      )}
+                    </span>
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div className="order-overview-info">
-              <ul>
-                <li className="font-semibold text-base">
-                  <span>Màu sắc:</span>
-                  <span className="text-silver">{color?.name}</span>
-                </li>
-                <li className="font-semibold text-base">
-                  <span>Kích thước:</span>
-                  <span className="text-silver">{size?.name}</span>
-                </li>
-                <li className="font-semibold text-base">
-                  <span>Số lượng:</span>
-                  <span className="text-silver">{detail.quantity}</span>
-                </li>
-                <li className="font-semibold text-base">
-                  <span>Tổng:</span>
-                  <span className="text-silver">
-                    {(detail.price * detail.quantity).toLocaleString("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    })}
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        ))}
-        <BaseLinkGreen to="/order_detail">Xem Chi Tiết</BaseLinkGreen>
+          ))}
+        </div>
+        <BaseLinkGreen to={`/order_detail/${order.id}`}>
+          Xem Chi Tiết
+        </BaseLinkGreen>
       </div>
     </OrderItemWrapper>
   );

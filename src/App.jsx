@@ -68,7 +68,7 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route path="/order_detail" element={<OrderDetail />} />
+            <Route path="/order_detail/:id" element={<OrderDetail />} />
             <Route
               path="/wishlist"
               element={

@@ -3,11 +3,13 @@ import { Container } from "../../styles/styles";
 import Breadcrumb from "../../components/common/Breadcrumb";
 import { UserContent, UserDashboardWrapper } from "../../styles/user";
 import UserMenu from "../../components/user/UserMenu";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Title from "../../components/common/Title";
 import { orderData } from "../../data/data";
 import { currencyFormat } from "../../utils/helper";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
+import { getOrderDetail } from "../../services/apiService";
+import { useEffect, useState } from "react";
 
 const OrderDetailScreenWrapper = styled.main`
   .btn-and-title-wrapper {
@@ -36,115 +38,6 @@ const OrderDetailScreenWrapper = styled.main`
       flex-direction: column;
       row-gap: 12px;
     }
-  }
-`;
-
-const OrderDetailStatusWrapper = styled.div`
-  margin: 0 36px;
-  @media (max-width: ${breakpoints.sm}) {
-    margin: 0 10px;
-    overflow-x: scroll;
-  }
-
-  .order-status {
-    height: 4px;
-    margin: 50px 0;
-    max-width: 580px;
-    width: 340px;
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
-    margin-bottom: 70px;
-
-    @media (max-width: ${breakpoints.sm}) {
-      margin-right: 40px;
-      margin-left: 40px;
-    }
-
-    &-dot {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-
-      &:nth-child(1) {
-        left: 0;
-      }
-
-      &:nth-child(2) {
-        left: calc(33.3333% - 10px);
-      }
-
-      &:nth-child(3) {
-        left: calc(66.6666% - 10px);
-      }
-      &:nth-child(4) {
-        right: 0;
-      }
-
-      &.status-done {
-        background-color: ${defaultTheme.color_outerspace};
-        .order-status-text {
-          color: ${defaultTheme.color_outerspace};
-        }
-      }
-
-      &.status-current {
-        position: absolute;
-        &::after {
-          content: "";
-          position: absolute;
-          width: 12px;
-          height: 12px;
-          background-color: ${defaultTheme.color_outerspace};
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          z-index: 30;
-          border-radius: 50%;
-        }
-
-        .order-status-text {
-          color: ${defaultTheme.color_outerspace};
-        }
-      }
-    }
-
-    &-text {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-    }
-  }
-`;
-
-const OrderDetailMessageWrapper = styled.div`
-  background-color: ${defaultTheme.color_whitesmoke};
-  max-width: 748px;
-  margin-right: auto;
-  margin-left: auto;
-  min-height: 68px;
-  padding: 16px 24px;
-  border-radius: 8px;
-  position: relative;
-  margin-top: 80px;
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: -34px;
-    left: 20%;
-    border-bottom: 22px solid ${defaultTheme.color_whitesmoke};
-    border-top: 18px solid transparent;
-    border-left: 18px solid transparent;
-    border-right: 18px solid transparent;
-  }
-
-  @media (max-width: ${breakpoints.sm}) {
-    margin-top: 10px;
   }
 `;
 
@@ -248,12 +141,27 @@ const OrderDetailListWrapper = styled.div`
 `;
 
 const breadcrumbItems = [
-  { label: "Home", link: "/" },
-  { label: "Order", link: "/order" },
-  { label: "Order Details", link: "/order_detail" },
+  { label: "Trang chủ", link: "/" },
+  { label: "Đơn hàng", link: "/order" },
+  { label: "Chi tiết đơn hàng", link: "" },
 ];
 
 const OrderDetailScreen = () => {
+  const { id } = useParams();
+
+  const [orderDetail, setOrderDetail] = useState(null);
+
+  useEffect(() => {
+    const fetchOrderDetail = async () => {
+      const response = await getOrderDetail(id);
+      setOrderDetail(response.data);
+    };
+
+    fetchOrderDetail();
+  }, []);
+
+  console.log(orderDetail);
+
   return (
     <OrderDetailScreenWrapper className="page-py-spacing">
       <Container>
@@ -268,56 +176,32 @@ const OrderDetailScreen = () => {
               >
                 <i className="bi bi-chevron-left"></i>
               </Link>
-              <Title titleText={"Order Details"} />
+              <Title titleText={"Chi tiết đơn hàng"} />
             </div>
 
             <div className="order-d-wrapper">
               <div className="order-d-top flex justify-between items-start">
                 <div className="order-d-top-l">
                   <h4 className="text-3xl order-d-no">
-                    Order no: #47770098867
+                    Mã đơn hàng: #{orderDetail?.id}
                   </h4>
                   <p className="text-lg font-medium text-gray">
-                    Placed On 2 June 2023 2:40 PM
+                    Trạng thái:{" "}
+                    <span className="text-outerspace">
+                      {orderDetail?.status}
+                    </span>
+                  </p>
+                  <p className="text-lg font-medium text-gray">
+                    Đặt hàng vào{" "}
+                    {new Date(orderDetail?.order_date).toLocaleDateString(
+                      "vi-VN"
+                    )}
                   </p>
                 </div>
                 <div className="order-d-top-r text-xxl text-gray font-semibold">
-                  Total: <span className="text-outerspace">$143.00</span>
+                  Tổng tiền: <span className="text-outerspace">$143.00</span>
                 </div>
               </div>
-
-              <OrderDetailStatusWrapper className="order-d-status">
-                <div className="order-status bg-silver">
-                  <div className="order-status-dot status-done bg-silver">
-                    <span className="order-status-text font-semibold text-center no-wrap text-silver">
-                      Order Placed
-                    </span>
-                  </div>
-                  <div className="order-status-dot status-current bg-silver">
-                    <span className="order-status-text font-semibold text-center no-wrap text-silver">
-                      In Progress
-                    </span>
-                  </div>
-                  <div className="order-status-dot bg-silver">
-                    <span className="order-status-text font-semibold text-center no-wrap text-silver">
-                      Shipped
-                    </span>
-                  </div>
-                  <div className="order-status-dot bg-silver">
-                    <span className="order-status-text font-semibold text-center no-wrap text-silver">
-                      Delivered
-                    </span>
-                  </div>
-                </div>
-              </OrderDetailStatusWrapper>
-              <OrderDetailMessageWrapper className="order-message flex items-center justify-start">
-                <p className="font-semibold text-gray">
-                  8 June 2023 3:40 PM &nbsp;
-                  <span className="text-outerspace">
-                    Your order has been successfully verified.
-                  </span>
-                </p>
-              </OrderDetailMessageWrapper>
 
               <OrderDetailListWrapper className="order-d-list">
                 {orderData[0].items?.map((item) => {
@@ -333,7 +217,13 @@ const OrderDetailScreen = () => {
                       <div className="order-d-item-info">
                         <p className="text-xl font-bold">{item.name}</p>
                         <p className="text-md font-bold">
-                          Color: &nbsp;
+                          Màu: &nbsp;
+                          <span className="font-medium text-gray">
+                            {item.color}
+                          </span>
+                        </p>
+                        <p className="text-md font-bold">
+                          Kích thước: &nbsp;
                           <span className="font-medium text-gray">
                             {item.color}
                           </span>
@@ -341,22 +231,16 @@ const OrderDetailScreen = () => {
                       </div>
                       <div className="order-d-item-calc">
                         <p className="font-bold text-lg">
-                          Qty: &nbsp;
+                          Số lượng: &nbsp;
                           <span className="text-gray">{item.quantity}</span>
                         </p>
                         <p className="font-bold text-lg">
-                          Price: &nbsp;
+                          Giá: &nbsp;
                           <span className="text-gray">
                             {currencyFormat(item.price)}
                           </span>
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        className="text-xl text-outerspace order-d-item-btn"
-                      >
-                        <i className="bi bi-x-lg"></i>
-                      </button>
                     </div>
                   );
                 })}

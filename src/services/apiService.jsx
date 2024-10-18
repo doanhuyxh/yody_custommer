@@ -122,6 +122,10 @@ export const getOrders = async (page, pageSize) => {
   return await axios.get(`api/order?page=${page}&pageSize=${pageSize}`);
 };
 
+export const getOrderDetail = async (id) => {
+  return await axios.get(`api/order/${id}`);
+};
+
 export const addOrder = async (data) => {
   return await axios.post("api/order/add_order", data);
 };
