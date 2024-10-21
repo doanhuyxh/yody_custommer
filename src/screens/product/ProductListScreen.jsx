@@ -106,10 +106,6 @@ const ProductListScreen = () => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    console.log("productsFiltered", productsFiltered);
-  }, [productsFiltered]);
-
   return (
     <main className="page-py-spacing">
       <Container>
