@@ -159,12 +159,18 @@ const OrderItem = ({ order }) => {
               <div className="order-overview-img">
                 <img
                   src={`https://api.yody.lokid.xyz${product?.Images[0]?.link}`}
-                  alt={product?.name}
+                  alt={product?.Product?.name}
                   className="object-fit-cover"
                 />
               </div>
               <div className="order-overview-info">
                 <ul>
+                  <li className="font-semibold text-base">
+                    <span>Tên sản phẩm:</span>
+                    <span className="text-silver">
+                      {product?.Product?.name}
+                    </span>
+                  </li>
                   <li className="font-semibold text-base">
                     <span>Màu sắc:</span>
                     <span className="text-silver">{color?.name}</span>
@@ -175,7 +181,7 @@ const OrderItem = ({ order }) => {
                   </li>
                   <li className="font-semibold text-base">
                     <span>Số lượng:</span>
-                    <span className="text-silver">{detail.quantity}</span>
+                    <span className="text-silver">{detail?.quantity}</span>
                   </li>
                   <li className="font-semibold text-base">
                     <span>Tổng:</span>

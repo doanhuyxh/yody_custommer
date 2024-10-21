@@ -159,7 +159,7 @@ export const GlobalStyles = createGlobalStyle`
         color: ${defaultTheme.color_outerspace};
     }
     .text-silver {
-        color: ${defaultTheme.color_silver};
+        color: ${defaultTheme.color_dim_gray};
     }
 
     .text-start {

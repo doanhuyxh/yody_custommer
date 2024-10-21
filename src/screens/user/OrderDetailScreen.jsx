@@ -5,11 +5,15 @@ import { UserContent, UserDashboardWrapper } from "../../styles/user";
 import UserMenu from "../../components/user/UserMenu";
 import { Link, useParams } from "react-router-dom";
 import Title from "../../components/common/Title";
-import { orderData } from "../../data/data";
-import { currencyFormat } from "../../utils/helper";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
 import { getOrderDetail } from "../../services/apiService";
 import { useEffect, useState } from "react";
+import {
+  getVariant,
+  getColor,
+  getSize,
+  getProductById,
+} from "../../services/apiService";
 
 const OrderDetailScreenWrapper = styled.main`
   .btn-and-title-wrapper {
@@ -150,6 +154,7 @@ const OrderDetailScreen = () => {
   const { id } = useParams();
 
   const [orderDetail, setOrderDetail] = useState(null);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const fetchOrderDetail = async () => {
@@ -160,7 +165,34 @@ const OrderDetailScreen = () => {
     fetchOrderDetail();
   }, []);
 
-  console.log(orderDetail);
+  useEffect(() => {
+    const fetchProductData = async () => {
+      const productPromises = orderDetail?.order_detail.map(async (detail) => {
+        const product = await getProductById(detail.product_id);
+        const variant = await getVariant(detail.product_variant_id);
+        const colors = await getColor();
+        const sizes = await getSize();
+
+        return {
+          product: product.data,
+          color: colors.data.find(
+            (color) => color.id === variant.data.color_id
+          ),
+          size: sizes.data.find((size) => size.id === variant.data.size_id),
+          quantity: detail.quantity,
+          price: detail.price,
+        };
+      });
+
+      const fetchedProducts = await Promise.all(productPromises);
+      setProducts(fetchedProducts);
+    };
+
+    fetchProductData();
+  }, [orderDetail]);
+
+  // console.log(orderDetail);
+  console.log(products);
 
   return (
     <OrderDetailScreenWrapper className="page-py-spacing">
@@ -199,45 +231,56 @@ const OrderDetailScreen = () => {
                   </p>
                 </div>
                 <div className="order-d-top-r text-xxl text-gray font-semibold">
-                  Tổng tiền: <span className="text-outerspace">$143.00</span>
+                  Tổng tiền:{" "}
+                  <span className="text-outerspace">
+                    {orderDetail?.total_amount.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </span>
                 </div>
               </div>
 
               <OrderDetailListWrapper className="order-d-list">
-                {orderData[0].items?.map((item) => {
+                {products?.map(({ product, color, size, quantity, price }) => {
                   return (
-                    <div className="order-d-item grid" key={item.id}>
+                    <div className="order-d-item grid" key={product.id}>
                       <div className="order-d-item-img">
                         <img
-                          src={item.imgSource}
-                          alt=""
+                          src={`https://api.yody.lokid.xyz${product?.Images[0]?.link}`}
+                          alt={product?.Product?.name}
                           className="object-fit-cover"
                         />
                       </div>
                       <div className="order-d-item-info">
-                        <p className="text-xl font-bold">{item.name}</p>
+                        <p className="text-xl font-bold">
+                          {product?.Product?.name}
+                        </p>
                         <p className="text-md font-bold">
                           Màu: &nbsp;
                           <span className="font-medium text-gray">
-                            {item.color}
+                            {color?.name}
                           </span>
                         </p>
                         <p className="text-md font-bold">
                           Kích thước: &nbsp;
                           <span className="font-medium text-gray">
-                            {item.color}
+                            {size?.name}
                           </span>
                         </p>
                       </div>
                       <div className="order-d-item-calc">
                         <p className="font-bold text-lg">
                           Số lượng: &nbsp;
-                          <span className="text-gray">{item.quantity}</span>
+                          <span className="text-gray">{quantity}</span>
                         </p>
                         <p className="font-bold text-lg">
                           Giá: &nbsp;
                           <span className="text-gray">
-                            {currencyFormat(item.price)}
+                            {price.toLocaleString("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            })}
                           </span>
                         </p>
                       </div>
