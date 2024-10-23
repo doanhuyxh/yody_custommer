@@ -60,12 +60,12 @@ const ProductItem = ({ product }) => {
           src={`https://api.yody.lokid.xyz${imageUrl}`}
           alt={Product.name}
         />
-        <button
+        {/* <button
           type="button"
           className="product-wishlist-icon flex items-center justify-center bg-white"
         >
           <i className="bi bi-heart"></i>
-        </button>
+        </button> */}
       </div>
       <div className="product-info">
         <p className="font-bold">{Product.name}</p>

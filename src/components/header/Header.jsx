@@ -394,14 +394,14 @@ const Header = () => {
           <IconLinksWrapper className="flex items-center">
             {isLoggedIn ? (
               <>
-                <Link
+                {/* <Link
                   to="/wishlist"
                   className={`icon-link ${
                     location.pathname === "/wishlist" ? "active" : ""
                   } inline-flex items-center justify-center`}
                 >
                   <img src={staticImages.heart} alt="" />
-                </Link>
+                </Link> */}
 
                 <Link
                   to="/account"

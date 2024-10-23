@@ -104,7 +104,7 @@ const UserMenu = () => {
               </span>
             </Link>
           </li>
-          <li className="nav-menu-item">
+          {/* <li className="nav-menu-item">
             <Link
               to="/wishlist"
               className={`nav-menu-link flex items-center ${
@@ -121,7 +121,7 @@ const UserMenu = () => {
                 Danh sách yêu thích
               </span>
             </Link>
-          </li>
+          </li> */}
           <li className="nav-menu-item">
             <Link
               to="/account"
