@@ -66,12 +66,8 @@ const OrderListScreen = () => {
   }, []);
 
   const activeOrders = orders.filter((order) => order.status === "pending");
-  const cancelledOrders = orders.filter(
-    (order) => order.status === "cancelled"
-  );
-  const completedOrders = orders.filter(
-    (order) => order.status === "completed"
-  );
+  const shippingOrders = orders.filter((order) => order.status === "shipping");
+  const completedOrders = orders.filter((order) => order.status === "success");
 
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
@@ -103,7 +99,7 @@ const OrderListScreen = () => {
                   }`}
                   onClick={() => handleTabClick("cancelled")}
                 >
-                  Đã hủy
+                  Đang vận chuyển
                 </button>
                 <button
                   type="button"
@@ -140,8 +136,8 @@ const OrderListScreen = () => {
                       }`}
                       id="cancelled"
                     >
-                      {cancelledOrders.length > 0 ? (
-                        <OrderItemList orders={cancelledOrders} />
+                      {shippingOrders.length > 0 ? (
+                        <OrderItemList orders={shippingOrders} />
                       ) : (
                         <p>Không có đơn hàng đã hủy.</p>
                       )}
