@@ -191,9 +191,6 @@ const OrderDetailScreen = () => {
     fetchProductData();
   }, [orderDetail]);
 
-  // console.log(orderDetail);
-  console.log(products);
-
   return (
     <OrderDetailScreenWrapper className="page-py-spacing">
       <Container>
