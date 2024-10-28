@@ -129,3 +129,7 @@ export const getOrderDetail = async (id) => {
 export const addOrder = async (data) => {
   return await axios.post("api/order/add_order", data);
 };
+
+export const trackingOrder = async (orderId) => {
+  return await axios.get(`api/order/tracking?order_id=${orderId}`);
+};

@@ -13,6 +13,7 @@ import {
   getColor,
   getSize,
   getProductById,
+  trackingOrder,
 } from "../../services/apiService";
 
 const OrderDetailScreenWrapper = styled.main`
@@ -144,6 +145,61 @@ const OrderDetailListWrapper = styled.div`
   }
 `;
 
+const CompactOrderTrackingWrapper = styled.div`
+  padding: 16px;
+  margin-top: 20px;
+  background-color: ${defaultTheme.color_light_gray};
+  border-radius: 8px;
+  font-size: 14px;
+
+  .tracking-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid ${defaultTheme.color_gray_light};
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: ${defaultTheme.color_primary};
+      color: ${defaultTheme.color_white};
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      font-size: 12px;
+    }
+
+    .details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      color: ${defaultTheme.color_dark};
+
+      .location {
+        font-weight: 500;
+      }
+
+      .carrier {
+        color: ${defaultTheme.color_gray};
+        font-size: 13px;
+      }
+    }
+
+    .time {
+      font-size: 12px;
+      color: #26aa99;
+      white-space: nowrap;
+    }
+  }
+`;
+
 const breadcrumbItems = [
   { label: "Trang chủ", link: "/" },
   { label: "Đơn hàng", link: "/order" },
@@ -154,16 +210,24 @@ const OrderDetailScreen = () => {
   const { id } = useParams();
 
   const [orderDetail, setOrderDetail] = useState(null);
+  const [orderTracking, setOrderTracking] = useState([]);
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const fetchOrderDetail = async () => {
       const response = await getOrderDetail(id);
       setOrderDetail(response.data);
+
+      if (response.data.status === "success") {
+        const dataTracking = await trackingOrder(id);
+        setOrderTracking(dataTracking.data);
+      }
     };
 
     fetchOrderDetail();
   }, []);
+
+  console.log(orderTracking);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -286,6 +350,36 @@ const OrderDetailScreen = () => {
                 })}
               </OrderDetailListWrapper>
             </div>
+
+            {orderDetail?.status === "success" && (
+              <CompactOrderTrackingWrapper>
+                <h3 className="text-xl font-semibold mb-4">
+                  Theo dõi đơn hàng
+                </h3>
+                {orderTracking?.map((tracking, index) => (
+                  <div className="tracking-item" key={index}>
+                    <div className="icon">
+                      <i className="bi bi-check-lg"></i>
+                    </div>
+                    <div className="details">
+                      <p className="location">{tracking.location}</p>
+                      <p className="carrier">
+                        Đơn vị vận chuyển: {tracking.carrier}
+                      </p>
+                    </div>
+                    <div className="time">
+                      {new Date(tracking.create_time).toLocaleString("vi-VN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </CompactOrderTrackingWrapper>
+            )}
           </UserContent>
         </UserDashboardWrapper>
       </Container>

@@ -389,7 +389,7 @@ const feedbackData = [
 const footerData = [
   {
     id: "f_need_help",
-    title: "Need Help",
+    title: "Dịch vụ khách hàng",
     links: [
       { text: "Contact Us", url: "/contact" },
       { text: "Track Order", url: "/track_order" },
@@ -400,7 +400,7 @@ const footerData = [
   },
   {
     id: "f_company",
-    title: "Company",
+    title: "Về YODY",
     links: [
       { text: "About Us", url: "/contact" },
       { text: "Achats Blog", url: "/blog" },
@@ -410,23 +410,15 @@ const footerData = [
     ],
   },
   {
-    id: "f_more_info",
-    title: "More info",
-    links: [
-      { text: "Terms and conditions", url: "/tac" },
-      { text: "Privacy Policy", url: "/privacy" },
-      { text: "Shipping Policy", url: "/shipping" },
-      { text: "Sitemap", url: "/sitemap" },
-    ],
-  },
-  {
     id: "f_location",
-    title: "Location",
+    title: "YODY lắng nghe bạn",
     lists: [
-      { text: "Tsupport@euphoria.in" },
-      { text: "Highland Strett, A04 Street 4014" },
-      { text: "New York City, USA" },
-      { text: "Phone: +000 999 8888" },
+      {
+        text: "Chúng tôi luôn trân trọng và mong đợi nhận được mọi ý kiến đóng góp từ khách hàng để có thể nâng cấp trải nghiệm dịch vụ và sản phẩm tốt hơn nữa.",
+      },
+      { text: "Địa chỉ: Hà Nội" },
+      { text: "Liên hệ: 0123456789" },
+      { text: "Email: chamsockhachhang@yody.vn" },
     ],
   },
 ];
