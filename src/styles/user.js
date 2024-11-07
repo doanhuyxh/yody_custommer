@@ -31,7 +31,7 @@ export const UserContent = styled.div`
 
   .form-wrapper {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr);
     column-gap: 32px;
     max-width: 895px;
 
@@ -115,7 +115,7 @@ export const UserContent = styled.div`
     }
   }
 
-  .form-btns{
+  .form-btns {
     gap: 12px;
     margin-top: 32px;
   }

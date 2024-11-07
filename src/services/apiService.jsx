@@ -133,3 +133,13 @@ export const addOrder = async (data) => {
 export const trackingOrder = async (orderId) => {
   return await axios.get(`api/order/tracking?order_id=${orderId}`);
 };
+
+export const uploadImage = async (data) => {
+  const formData = new FormData();
+  formData.append("file", data);
+  return await axios.post("api/uploadImage", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

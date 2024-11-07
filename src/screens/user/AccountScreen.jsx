@@ -8,7 +8,11 @@ import { FormElement, Input } from "../../styles/form";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { updateProfile, getUserInfo } from "../../services/apiService";
+import {
+  updateProfile,
+  getUserInfo,
+  uploadImage,
+} from "../../services/apiService";
 import { toast } from "react-toastify";
 
 const AccountScreenWrapper = styled.main`
@@ -51,6 +55,63 @@ const AccountScreenWrapper = styled.main`
   }
 `;
 
+const AvatarStyles = styled.div`
+  .avatar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .avatar-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  .avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+  }
+
+  .avatar-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-change-avatar {
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+    background: #10b9b0;
+    color: white;
+    font-size: 14px;
+    border: none;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #0e9d95;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+`;
+
 const breadcrumbItems = [
   {
     label: "Trang chủ",
@@ -68,6 +129,9 @@ const AccountScreen = () => {
   const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
 
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -81,6 +145,9 @@ const AccountScreen = () => {
       setEmail(data.data.email);
       setPhoneNumber(data.data.phone_number);
       setAddress(data.data.address);
+      if (data.data.avatar) {
+        setAvatarPreview(`https://api.yody.lokid.xyz${data.data.avatar}`);
+      }
     } catch (error) {
       console.error("Error:", error);
     }
@@ -100,6 +167,40 @@ const AccountScreen = () => {
     }
   };
 
+  const handleAvatarChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      setAvatarLoading(true);
+
+      // Preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      const uploadResponse = await uploadImage(file);
+
+      // Update user avatar
+      const updateResponse = await updateProfile({
+        id: customer.id,
+        field: "avatar",
+        value: uploadResponse.file,
+      });
+
+      if (updateResponse.data) {
+        toast.success("Cập nhật ảnh đại diện thành công");
+      }
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi cập nhật ảnh");
+      console.error(error);
+    } finally {
+      setAvatarLoading(false);
+    }
+  };
+
   return (
     <AccountScreenWrapper className="page-py-spacing">
       <Container>
@@ -107,10 +208,37 @@ const AccountScreen = () => {
         <UserDashboardWrapper>
           <UserMenu />
           <UserContent>
-            <Title titleText={"My Account"} />
+            <Title titleText={"Tài khoản của tôi"} />
             <h4 className="title-sm">Chi tiết liên lạc</h4>
             <form>
               <div className="form-wrapper">
+                <AvatarStyles>
+                  <div className="avatar-wrapper">
+                    <div className="avatar-container">
+                      <img
+                        src={avatarPreview || "https://via.placeholder.com/150"}
+                        alt="User avatar"
+                        className="avatar"
+                      />
+                      {avatarLoading && (
+                        <div className="avatar-loading">
+                          <span className="loading-spinner" />
+                        </div>
+                      )}
+                    </div>
+                    <label className="btn-change-avatar">
+                      Thay đổi ảnh đại diện
+                      <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        disabled={avatarLoading}
+                      />
+                    </label>
+                  </div>
+                </AvatarStyles>
+
                 <FormElement className="form-elem">
                   <label
                     htmlFor=""

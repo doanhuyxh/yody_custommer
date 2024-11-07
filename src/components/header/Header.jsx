@@ -7,7 +7,11 @@ import { Input, InputGroupWrapper } from "../../styles/form";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
 import { BaseLinkGreen, BaseLinkOutlineDark } from "../../styles/button";
 import { useSelector } from "react-redux";
-import { searchProduct, getImgUrlBySlug } from "../../services/apiService";
+import {
+  searchProduct,
+  getImgUrlBySlug,
+  getUserInfo,
+} from "../../services/apiService";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "../../context/CartContext";
 
@@ -145,15 +149,30 @@ const IconLinksWrapper = styled.div`
     height: 36px;
     border-radius: 6px;
 
+    .avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      object-fit: cover;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+
     &.active {
-      background-color: ${defaultTheme.color_sea_green};
-      img {
+      background-color: #10b9b0;
+      .cart-icon {
         filter: brightness(100);
       }
     }
 
     &:hover {
-      background-color: ${defaultTheme.color_whitesmoke};
+      background-color: #10b9b0;
+      .cart-icon {
+        filter: brightness(100);
+      }
     }
   }
 
@@ -198,6 +217,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+  const customer = useSelector((state) => state.user.customer);
 
   const location = useLocation();
 
@@ -205,8 +225,24 @@ const Header = () => {
   const [images, setImages] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [avatar, setAvatar] = useState("");
 
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const data = await getUserInfo(customer.id);
+        if (data.data.avatar) {
+          setAvatar(data.data.avatar);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -412,7 +448,11 @@ const Header = () => {
                       : ""
                   } inline-flex items-center justify-center`}
                 >
-                  <img src={staticImages.user} alt="" />
+                  <img
+                    className="avatar"
+                    src={`https://api.yody.lokid.xyz${avatar}`}
+                    alt=""
+                  />
                 </Link>
 
                 <Link
@@ -424,7 +464,7 @@ const Header = () => {
                   {cartCount > 0 && (
                     <span className="cart-badge">{cartCount}</span>
                   )}
-                  <img src={staticImages.cart} alt="" />
+                  <img className="cart-icon" src={staticImages.cart} alt="" />
                 </Link>
               </>
             ) : (
