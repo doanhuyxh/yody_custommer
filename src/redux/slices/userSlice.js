@@ -18,8 +18,8 @@ const userSlice = createSlice({
     login(state, action) {
       const { customer, tokens } = action.payload; // Giải nén thông tin từ payload
       state.customer = customer; // Lưu thông tin khách hàng
-      state.accessToken = tokens.access_token; // Lưu token truy cập
-      state.refreshToken = tokens.refresh_token; // Lưu token làm mới
+      state.accessToken = tokens?.access_token; // Lưu token truy cập
+      state.refreshToken = tokens?.refresh_token; // Lưu token làm mới
       state.isLoggedIn = true; // Cập nhật trạng thái đăng nhập
 
       localStorage.setItem("user", JSON.stringify(action.payload));
