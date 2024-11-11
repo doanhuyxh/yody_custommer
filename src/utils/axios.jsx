@@ -42,8 +42,8 @@ instance.interceptors.response.use(
     // Dừng NProgress sau khi nhận được response
     NProgress.done();
 
-    if (response.data.code === 20004) {
-      // Nếu token hết hạn (mã lỗi 20004), thực hiện hành động logout
+    if (response.data.code === 20005) {
+      // Nếu token hết hạn (mã lỗi 20005), thực hiện hành động logout
       const refreshToken = store.getState().user.refreshToken;
       const refreshResponse = await refreshAccessToken(refreshToken);
       if (refreshResponse.code === 20001) {
