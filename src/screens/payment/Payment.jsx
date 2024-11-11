@@ -3,20 +3,20 @@ import { BaseButtonGreen } from "../../styles/button";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { addOrder } from "../../services/apiService";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   getCart,
   deleteProductInCart,
-  // getOrderByOrderCode,
+  getOrderByOrderCode,
 } from "../../services/apiService";
 import { useCart } from "../../context/CartContext";
+import OrderSuccess from "../../components/checkout/OrderSuccess";
 
 const PaymentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
   text-align: center;
   background-color: #f9f9f9;
   padding: 20px;
@@ -58,6 +58,8 @@ const Payment = () => {
 
   const order = useSelector((state) => state.order);
 
+  const [orderData, setOrderData] = useState(null);
+
   const params = new URLSearchParams(window.location.search);
   const vnp_TransactionStatus = params.get("vnp_TransactionStatus");
   const vnp_TxnRef = params.get("vnp_TxnRef");
@@ -90,18 +92,18 @@ const Payment = () => {
       }
     };
 
-    // const fetchOrder = async () => {
-    //   try {
-    //     const data = await getOrderByOrderCode(vnp_TxnRef);
-    //     if (data.data) {
-    //       console.log(data.data);
-    //     }
-    //   } catch (error) {
-    //     console.error("Error getting order:", error);
-    //   }
-    // };
+    const fetchOrder = async () => {
+      try {
+        const data = await getOrderByOrderCode(vnp_TxnRef);
+        if (data.data) {
+          setOrderData(data.data);
+        }
+      } catch (error) {
+        console.error("Error getting order:", error);
+      }
+    };
 
-    // fetchOrder();
+    fetchOrder();
     fetchAddOrder();
   }, [vnp_TxnRef]);
 
@@ -109,12 +111,7 @@ const Payment = () => {
     <PaymentWrapper>
       {vnp_TransactionStatus === "00" ? (
         <>
-          <i className="bi bi-check-circle-fill icon-success"></i>
-          <h1>Thanh toán thành công!</h1>
-          <p className="success-message">
-            Giao dịch của bạn đã được xử lý thành công. Cảm ơn bạn đã thanh
-            toán.
-          </p>
+          <OrderSuccess orderData={orderData} />
         </>
       ) : (
         <>
