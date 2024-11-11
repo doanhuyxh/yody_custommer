@@ -243,6 +243,13 @@ const ProductDetailsScreen = () => {
     useState([]);
 
   useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
+
+  useEffect(() => {
     const fetchProduct = async () => {
       try {
         const data = await getProductById(id);

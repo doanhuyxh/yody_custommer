@@ -116,6 +116,10 @@ export const vnpayPayment = async (totalPrice) => {
   return await axios.post("https://vnpay.lokid.xyz/api/vnpay-payment", {
     total_price: totalPrice,
   });
+
+  // return await axios.post("http://localhost:5000/api/vnpay-payment", {
+  //   total_price: totalPrice,
+  // });
 };
 
 export const getOrders = async (page, pageSize) => {
