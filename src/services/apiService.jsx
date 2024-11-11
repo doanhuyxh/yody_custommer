@@ -147,3 +147,9 @@ export const uploadImage = async (data) => {
     },
   });
 };
+
+export const getOrderByOrderCode = async (orderCode) => {
+  return await axios.get(`api/order/order_code`, {
+    order_code: orderCode,
+  });
+};

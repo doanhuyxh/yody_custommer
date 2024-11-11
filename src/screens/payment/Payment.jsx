@@ -4,7 +4,11 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { addOrder } from "../../services/apiService";
 import { useEffect } from "react";
-import { getCart, deleteProductInCart } from "../../services/apiService";
+import {
+  getCart,
+  deleteProductInCart,
+  // getOrderByOrderCode,
+} from "../../services/apiService";
 import { useCart } from "../../context/CartContext";
 
 const PaymentWrapper = styled.div`
@@ -86,6 +90,18 @@ const Payment = () => {
       }
     };
 
+    // const fetchOrder = async () => {
+    //   try {
+    //     const data = await getOrderByOrderCode(vnp_TxnRef);
+    //     if (data.data) {
+    //       console.log(data.data);
+    //     }
+    //   } catch (error) {
+    //     console.error("Error getting order:", error);
+    //   }
+    // };
+
+    // fetchOrder();
     fetchAddOrder();
   }, [vnp_TxnRef]);
 
