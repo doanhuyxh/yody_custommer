@@ -123,7 +123,7 @@ export const PriceFilter = styled.div`
 
   .range-price {
     margin: 20px 0;
-    column-gap: 30px;
+    column-gap: 10px;
   }
   .range-price input {
     width: 50%;

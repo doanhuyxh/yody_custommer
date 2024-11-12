@@ -7,6 +7,24 @@ import {
   ProductCategoryFilter,
 } from "../../styles/filter";
 import { getCategories, filterProduct } from "../../services/apiService";
+import styled from "styled-components";
+
+const FilterButton = styled.button`
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  background: #10b9b0;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #0e9d95;
+  }
+`;
 
 const ProductFilter = ({ setProductsFiltered }) => {
   const params = new URLSearchParams(window.location.search);
@@ -45,52 +63,105 @@ const ProductFilter = ({ setProductsFiltered }) => {
     }
   };
 
-  const [minRange, setMinRange] = useState(0);
-  const [maxRange, setMaxRange] = useState(1000000);
+  const [minRange, setMinRange] = useState(null);
+  const [maxRange, setMaxRange] = useState(null);
+
+  const [tempMin, setTempMin] = useState("");
+  const [tempMax, setTempMax] = useState("");
+  const [isPriceValid, setIsPriceValid] = useState(true); // State to track if the price range is valid
+  const [priceError, setPriceError] = useState(""); // To hold error message for invalid price input
+
+  const validatePriceInput = (value, isMin = true) => {
+    if (value === "") return null; // Allow empty string for reset
+    const parsedValue = parseInt(value.replace(/,/g, "")); // Remove commas if any
+    if (isNaN(parsedValue) || parsedValue < 0) {
+      setPriceError(isMin ? "Giá không hợp lệ" : "Giá không hợp lệ");
+      return isMin ? 0 : minRange; // Invalid price, reset value
+    }
+
+    if (isMin && parsedValue > maxRange && maxRange !== null) {
+      setPriceError("Giá thấp nhất không thể lớn hơn giá cao nhất");
+      return maxRange; // Min can't be greater than max
+    }
+
+    if (!isMin && parsedValue < minRange && minRange !== null) {
+      setPriceError("Giá cao nhất không thể nhỏ hơn giá thấp nhất");
+      return minRange; // Max can't be less than min
+    }
+
+    setPriceError(""); // Clear error if value is valid
+    return parsedValue;
+  };
 
   const handleInputChange = (e) => {
-    const inputName = e.target.name;
-    let inputValue = parseInt(e.target.value);
+    const { name, value } = e.target;
 
-    // Ensure inputValue is a valid number (handle non-numeric inputs)
-    if (isNaN(inputValue)) return;
+    // Temporary local variables to store min/max values
+    let updatedMin = name === "min" ? value : tempMin;
+    let updatedMax = name === "max" ? value : tempMax;
 
-    if (inputName === "min") {
-      // Ensure min value is not less than 0
-      if (inputValue < 0) inputValue = 0;
-      // Ensure min doesn't exceed max
-      if (inputValue > maxRange) inputValue = maxRange;
-      setMinRange(inputValue);
-    } else if (inputName === "max") {
-      // Ensure max value is not less than min
-      if (inputValue < minRange) inputValue = minRange;
-      setMaxRange(inputValue);
+    // Update temporary values
+    if (name === "min") {
+      setTempMin(value);
+    } else if (name === "max") {
+      setTempMax(value);
+    }
+
+    // Check if min is greater than max to disable the filter button
+    if (
+      updatedMin &&
+      updatedMax &&
+      parseInt(updatedMin) > parseInt(updatedMax)
+    ) {
+      setIsPriceValid(false); // Disable button
+      setPriceError("Giá thấp nhất không thể lớn hơn giá cao nhất");
+    } else {
+      setIsPriceValid(true); // Enable button
+      setPriceError(""); // Clear error
+    }
+  };
+
+  const handlePriceFilter = () => {
+    const validatedMin = validatePriceInput(tempMin, true);
+    const validatedMax = validatePriceInput(tempMax, false);
+
+    // Update minRange and maxRange if valid values
+    if (validatedMin !== null && validatedMax !== null) {
+      setMinRange(validatedMin);
+      setMaxRange(validatedMax);
+
+      // Fetch filtered products
+      fetchFilteredProducts(validatedMin, validatedMax);
+    } else {
+      console.warn("Invalid price range selected.");
+    }
+  };
+
+  const fetchFilteredProducts = async (min, max) => {
+    try {
+      const page = 1;
+      const pageSize = 12;
+
+      const data = await filterProduct(
+        page,
+        pageSize,
+        selectedCategory,
+        slugProduct,
+        min,
+        max
+      );
+
+      setProductsFiltered(data.data);
+    } catch (error) {
+      console.error("Error fetching filtered products:", error);
     }
   };
 
   useEffect(() => {
-    const fetchFilteredProducts = async () => {
-      try {
-        const page = 1;
-        const pageSize = 12;
-
-        const data = await filterProduct(
-          page,
-          pageSize,
-          selectedCategory,
-          slugProduct,
-          minRange,
-          maxRange
-        );
-
-        setProductsFiltered(data.data);
-      } catch (error) {
-        console.error("Error fetching filtered products:", error);
-      }
-    };
-
-    fetchFilteredProducts();
-  }, [slugProduct, selectedCategory, minRange, maxRange, setProductsFiltered]);
+    if (minRange !== null && maxRange !== null) {
+      fetchFilteredProducts(minRange, maxRange);
+    }
+  }, [slugProduct, selectedCategory, minRange, maxRange]);
 
   return (
     <>
@@ -153,20 +224,36 @@ const ProductFilter = ({ setProductsFiltered }) => {
           </p>
           <div className="range-price w-full flex items-center">
             <input
-              type="number"
+              type="text"
               className="text-center"
               name="min"
-              value={minRange}
+              value={tempMin || ""}
               onChange={handleInputChange}
+              placeholder="Giá thấp nhất"
             />
+            <span>-</span>
             <input
-              type="number"
+              type="text"
               className="text-center"
               name="max"
-              value={maxRange}
+              value={tempMax || ""}
               onChange={handleInputChange}
+              placeholder="Giá cao nhất"
             />
           </div>
+          {priceError && (
+            <p className="text-sm" style={{ color: "red" }}>
+              {priceError}
+            </p>
+          )}
+          <FilterButton
+            onClick={handlePriceFilter}
+            disabled={!isPriceValid}
+            style={{ cursor: !isPriceValid ? "not-allowed" : "pointer" }} // Sửa style conditionally
+          >
+            {" "}
+            Lọc giá
+          </FilterButton>
         </FilterWrap>
       </PriceFilter>
     </>

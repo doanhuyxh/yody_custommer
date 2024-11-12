@@ -37,6 +37,19 @@ const OrderListScreenWrapper = styled.div`
   }
 `;
 
+const StatusBadge = styled.span`
+  background-color: #dc3545;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 12px;
+  margin-left: 8px;
+  height: 20px;
+  width: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const breadcrumbItems = [
   { label: "Trang chủ", link: "/" },
   { label: "Đơn hàng", link: "/order" },
@@ -46,6 +59,11 @@ const OrderListScreen = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [orderCounts, setOrderCounts] = useState({
+    pending: 0,
+    shipping: 0,
+    completed: 0,
+  });
 
   useEffect(() => {
     // Gọi API để lấy danh sách đơn hàng
@@ -69,6 +87,33 @@ const OrderListScreen = () => {
   const shippingOrders = orders.filter((order) => order.status === "shipping");
   const completedOrders = orders.filter((order) => order.status === "success");
 
+  const formatBadgeCount = (count) => {
+    return count > 99 ? "99+" : count;
+  };
+
+  useEffect(() => {
+    // Calculate counts from orders array
+    const counts = orders.reduce(
+      (acc, order) => {
+        switch (order.status) {
+          case "pending":
+            acc.pending++;
+            break;
+          case "shipping":
+            acc.shipping++;
+            break;
+          case "completed":
+            acc.completed++;
+            break;
+        }
+        return acc;
+      },
+      { pending: 0, shipping: 0, completed: 0 }
+    );
+
+    setOrderCounts(counts);
+  }, [orders]);
+
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
   };
@@ -90,7 +135,10 @@ const OrderListScreen = () => {
                   }`}
                   onClick={() => handleTabClick("active")}
                 >
-                  Đang xử lý
+                  Đang xử lý{" "}
+                  <StatusBadge>
+                    {formatBadgeCount(orderCounts.pending)}
+                  </StatusBadge>
                 </button>
                 <button
                   type="button"
@@ -99,7 +147,10 @@ const OrderListScreen = () => {
                   }`}
                   onClick={() => handleTabClick("cancelled")}
                 >
-                  Đang vận chuyển
+                  Đang vận chuyển{" "}
+                  <StatusBadge>
+                    {formatBadgeCount(orderCounts.shipping)}
+                  </StatusBadge>
                 </button>
                 <button
                   type="button"
@@ -108,7 +159,10 @@ const OrderListScreen = () => {
                   }`}
                   onClick={() => handleTabClick("completed")}
                 >
-                  Đã hoàn thành
+                  Đã hoàn thành{" "}
+                  <StatusBadge>
+                    {formatBadgeCount(orderCounts.completed)}
+                  </StatusBadge>
                 </button>
               </div>
 

@@ -65,6 +65,17 @@ const Payment = () => {
   const vnp_TxnRef = params.get("vnp_TxnRef");
 
   useEffect(() => {
+    const fetchOrder = async () => {
+      try {
+        const data = await getOrderByOrderCode(vnp_TxnRef);
+        if (data.data) {
+          setOrderData(data.data);
+        }
+      } catch (error) {
+        console.error("Error getting order:", error);
+      }
+    };
+
     const fetchAddOrder = async () => {
       if (vnp_TransactionStatus === "00") {
         try {
@@ -84,6 +95,7 @@ const Payment = () => {
                 );
                 await getCartCount(); // Cập nhật số lượng giỏ hàng sau khi xóa
               }
+              fetchOrder();
             }
           }
         } catch (error) {
@@ -92,18 +104,6 @@ const Payment = () => {
       }
     };
 
-    const fetchOrder = async () => {
-      try {
-        const data = await getOrderByOrderCode(vnp_TxnRef);
-        if (data.data) {
-          setOrderData(data.data);
-        }
-      } catch (error) {
-        console.error("Error getting order:", error);
-      }
-    };
-
-    fetchOrder();
     fetchAddOrder();
   }, [vnp_TxnRef]);
 
