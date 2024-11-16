@@ -103,8 +103,13 @@ const CheckoutSummary = ({ cartItems, subtotal }) => {
             (size) => size.id === variantData.data.size_id
           );
 
+          const getImgProduct = productData.data.Images.filter(
+            (image) => image.color_id === variantData.data.color_id
+          );
+
           return {
             ...item,
+            img: getImgProduct[0]?.link,
             product: productData.data,
             size: getSizeFollowVariant,
             color: getColorFollowVariant,
@@ -122,11 +127,12 @@ const CheckoutSummary = ({ cartItems, subtotal }) => {
       <h4 className="text-xxl font-bold text-outersapce">Tóm tắt đơn hàng</h4>
       <div className="order-list grid">
         {orderDetails?.map((order) => {
+          console.log(order);
           return (
             <div className="order-item grid" key={order.id}>
               <div className="order-item-img">
                 <img
-                  src={`https://api.yody.lokid.xyz${order.product.Images[0]?.link}`}
+                  src={`https://api.yody.lokid.xyz${order.img}`}
                   className="object-fit-cover"
                   alt=""
                 />

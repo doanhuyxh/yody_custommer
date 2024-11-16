@@ -26,9 +26,19 @@ const FilterButton = styled.button`
   }
 `;
 
-const ProductFilter = ({ setProductsFiltered }) => {
+const ProductFilter = ({ setProductsFiltered, setIsLoading }) => {
   const params = new URLSearchParams(window.location.search);
   const slugProduct = params.get("search");
+
+  const removeVietnameseTones = (str) => {
+    return str
+      ?.normalize("NFD") // Phân tích chuỗi thành các ký tự Unicode cơ bản
+      .replace(/[\u0300-\u036f]/g, "") // Loại bỏ các dấu
+      .replace(/đ/g, "d") // Thay thế 'đ' thành 'd'
+      .replace(/Đ/g, "D"); // Thay thế 'Đ' thành 'D'
+  };
+
+  const slugProductWithoutAccent = removeVietnameseTones(slugProduct);
 
   const [isProductFilterOpen, setProductFilterOpen] = useState(true);
   const [isPriceFilterOpen, setPriceFilterOpen] = useState(true);
@@ -145,8 +155,8 @@ const ProductFilter = ({ setProductsFiltered }) => {
       const data = await filterProduct(
         page,
         pageSize,
-        selectedCategory,
-        slugProduct,
+        selectedCategory ? selectedCategory : "",
+        slugProductWithoutAccent ? slugProductWithoutAccent : "",
         min,
         max
       );
@@ -154,8 +164,14 @@ const ProductFilter = ({ setProductsFiltered }) => {
       setProductsFiltered(data.data);
     } catch (error) {
       console.error("Error fetching filtered products:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchFilteredProducts("", "");
+  }, [slugProduct, selectedCategory]);
 
   useEffect(() => {
     if (minRange !== null && maxRange !== null) {

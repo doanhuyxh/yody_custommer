@@ -108,7 +108,12 @@ const OrderItem = ({ order }) => {
         const colors = await getColor();
         const sizes = await getSize();
 
+        const getImgProduct = product.data.Images.filter(
+          (image) => image.color_id === variant.data.color_id
+        );
+
         return {
+          img: getImgProduct[0]?.link,
           product: product.data,
           color: colors.data.find(
             (color) => color.id === variant.data.color_id
@@ -124,8 +129,6 @@ const OrderItem = ({ order }) => {
 
     fetchData();
   }, [order]);
-
-  console.log(products);
 
   return (
     <OrderItemWrapper>
@@ -154,11 +157,11 @@ const OrderItem = ({ order }) => {
       </div>
       <div className="order-overview flex justify-between">
         <div className="flex flex-col" style={{ gap: 20 }}>
-          {products.map(({ product, color, size, detail }) => (
+          {products.map(({ img, product, color, size, detail }) => (
             <div key={detail.id} className="order-overview-content grid">
               <div className="order-overview-img">
                 <img
-                  src={`https://api.yody.lokid.xyz${product?.Images[0]?.link}`}
+                  src={`https://api.yody.lokid.xyz${img}`}
                   alt={product?.Product?.name}
                   className="object-fit-cover"
                 />

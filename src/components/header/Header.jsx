@@ -76,11 +76,24 @@ const NavigationAndSearchWrapper = styled.div`
 
   .input-group {
     min-width: 320px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: all 0.2s ease;
 
     .input-control {
       @media (max-width: ${breakpoints.sm}) {
         display: none;
       }
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    // Style for entire group when input is focused
+    &:focus-within {
+      border-color: #10b9b0;
+      box-shadow: 0 0 0 2px rgba(16, 185, 176, 0.1);
     }
 
     @media (max-width: ${breakpoints.xl}) {
@@ -303,6 +316,27 @@ const Header = () => {
     }
   }, [suggestions]);
 
+  useEffect(() => {
+    // Lưu giá trị tìm kiếm vào localStorage mỗi khi searchTerm thay đổi
+    if (searchTerm) {
+      localStorage.setItem("searchTerm", searchTerm);
+    }
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const savedSearchTerm = localStorage.getItem("searchTerm");
+    if (savedSearchTerm) {
+      setSearchTerm(savedSearchTerm);
+    }
+  }, []);
+
+  // Xóa searchTerm khỏi localStorage nếu không có giá trị
+  useEffect(() => {
+    if (!searchTerm) {
+      localStorage.removeItem("searchTerm");
+    }
+  }, [searchTerm]);
+
   const handleFocus = () => {
     setDropdownVisible(true); // Hiện dropdown khi input được focus
   };
@@ -386,6 +420,7 @@ const Header = () => {
                       setDropdownVisible(false);
                       const slugSearch = searchTerm.trim().replace(/\s+/g, "-");
                       navigate(`/product?search=${slugSearch}`);
+                      window.location.reload();
                     }
                   }}
                 />

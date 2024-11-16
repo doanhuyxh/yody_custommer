@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import styled from "styled-components";
-import { getProductById } from "../../services/apiService";
+import { getProductById, getVariant } from "../../services/apiService";
 import { useEffect, useState } from "react";
 
 const SuccessWrapper = styled.div`
@@ -70,19 +70,40 @@ const OrderSuccess = ({ orderData }) => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const productDetails = {};
-      for (const item of orderData?.order_detail || []) {
-        const product = await getProductById(item.product_id);
-        if (product) {
-          productDetails[item.product_id] = product;
+      const productDetailsPromises = orderData?.order_detail?.map(
+        async (item) => {
+          const product = await getProductById(item.product_id);
+          const variant = await getVariant(item.product_variant_id);
+
+          const getImgProduct = product.data.Images.filter(
+            (image) => image.color_id === variant.data.color_id
+          );
+
+          return {
+            orderDetailId: item.id,
+            data: product.data,
+            img: getImgProduct[0]?.link,
+          };
         }
-      }
-      setProducts(productDetails);
+      );
+
+      const productDetails = await Promise.all(productDetailsPromises);
+      const productsObj = productDetails.reduce(
+        (acc, { orderDetailId, data, img }) => {
+          acc[orderDetailId] = { data, img };
+          return acc;
+        },
+        {}
+      );
+      setProducts(productsObj);
       setLoading(false);
     };
 
     fetchProducts();
   }, [orderData]);
+
+  console.log("orderData", orderData);
+  console.log("products", products);
 
   return (
     <SuccessWrapper>
@@ -124,8 +145,8 @@ const OrderSuccess = ({ orderData }) => {
       <OrderSection>
         <h2>Chi tiết đơn hàng</h2>
         {orderData?.order_detail.map((item, index) => {
-          const productData = products[item.product_id]?.data?.Product;
-          const productImage = products[item.product_id]?.data?.Images[0]?.link;
+          const productData = products[item.id]?.data?.Product;
+          const productImage = products[item.id]?.img;
 
           return (
             <div key={index} className="order-item">

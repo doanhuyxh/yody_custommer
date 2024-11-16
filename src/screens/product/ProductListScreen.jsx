@@ -4,9 +4,7 @@ import Breadcrumb from "../../components/common/Breadcrumb";
 import ProductList from "../../components/product/ProductList";
 import { breakpoints, defaultTheme } from "../../styles/themes/default";
 import ProductFilter from "../../components/product/ProductFilter";
-import { useEffect, useState } from "react";
-import { getProducts } from "../../services/apiService";
-import { useLocation } from "react-router-dom";
+import { useState } from "react";
 
 const ProductsContent = styled.div`
   grid-template-columns: 320px auto;
@@ -78,33 +76,13 @@ const ProductsContentRight = styled.div`
 `;
 
 const ProductListScreen = () => {
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const slugProduct = params.get("search");
-  console.log("slugProduct", slugProduct);
-
   const breadcrumbItems = [
     { label: "Trang chủ", link: "/" },
     { label: "Sản phẩm", link: "" },
   ];
 
-  const [products, setProducts] = useState([]);
-  // const [page, setPage] = useState(1);
-  // const [pageSize, setPageSize] = useState(12);
   const [productsFiltered, setProductsFiltered] = useState([]);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProducts(1, 12);
-        setProducts(data.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-
-    fetchProducts();
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
 
   return (
     <main className="page-py-spacing">
@@ -112,16 +90,13 @@ const ProductListScreen = () => {
         <Breadcrumb items={breadcrumbItems} />
         <ProductsContent className="grid items-start">
           <ProductsContentLeft>
-            <ProductFilter setProductsFiltered={setProductsFiltered} />
+            <ProductFilter
+              setProductsFiltered={setProductsFiltered}
+              setIsLoading={setIsLoading}
+            />
           </ProductsContentLeft>
           <ProductsContentRight>
-            <ProductList
-              products={
-                productsFiltered?.length > 0
-                  ? productsFiltered
-                  : products.slice(0, 12)
-              }
-            />
+            <ProductList products={productsFiltered} isLoading={isLoading} />
           </ProductsContentRight>
         </ProductsContent>
       </Container>

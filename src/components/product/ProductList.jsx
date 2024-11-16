@@ -14,15 +14,23 @@ const ProductListWrapper = styled.div`
   }
 `;
 
-const ProductList = ({ products }) => {
+const LoadingMessage = styled.div`
+  text-align: center;
+  font-size: 18px;
+  color: #999;
+`;
+
+const ProductList = ({ products, isLoading }) => {
   return (
     <ProductListWrapper className="grid">
-      {products?.length > 0 ? (
-        products?.map((product, index) =>
+      {isLoading ? (
+        <LoadingMessage>Đang tải sản phẩm...</LoadingMessage>
+      ) : products?.length > 0 ? (
+        products?.map((product) =>
           product && product.Product ? (
             <ProductItem key={product.Product.id} product={product} />
           ) : (
-            <p key={index}>Không có sản phẩm nào.</p>
+            <p key={product.Product.id}>Không có sản phẩm nào.</p>
           )
         )
       ) : (
@@ -36,4 +44,5 @@ export default ProductList;
 
 ProductList.propTypes = {
   products: PropTypes.array,
+  isLoading: PropTypes.bool,
 };
