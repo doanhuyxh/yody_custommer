@@ -237,7 +237,12 @@ const OrderDetailScreen = () => {
         const colors = await getColor();
         const sizes = await getSize();
 
+        const getImgProduct = product.data.Images.filter(
+          (image) => image.color_id === variant.data.color_id
+        );
+
         return {
+          img: getImgProduct[0]?.link,
           product: product.data,
           color: colors.data.find(
             (color) => color.id === variant.data.color_id
@@ -303,51 +308,53 @@ const OrderDetailScreen = () => {
               </div>
 
               <OrderDetailListWrapper className="order-d-list">
-                {products?.map(({ product, color, size, quantity, price }) => {
-                  return (
-                    <div className="order-d-item grid" key={product.id}>
-                      <div className="order-d-item-img">
-                        <img
-                          src={`https://api.yody.lokid.xyz${product?.Images[0]?.link}`}
-                          alt={product?.Product?.name}
-                          className="object-fit-cover"
-                        />
+                {products?.map(
+                  ({ img, product, color, size, quantity, price }) => {
+                    return (
+                      <div className="order-d-item grid" key={product.id}>
+                        <div className="order-d-item-img">
+                          <img
+                            src={`https://api.yody.lokid.xyz${img}`}
+                            alt={product?.Product?.name}
+                            className="object-fit-cover"
+                          />
+                        </div>
+                        <div className="order-d-item-info">
+                          <p className="text-xl font-bold">
+                            {product?.Product?.name}
+                          </p>
+                          <p className="text-md font-bold">
+                            Màu: &nbsp;
+                            <span className="font-medium text-gray">
+                              {color?.name}
+                            </span>
+                          </p>
+                          <p className="text-md font-bold">
+                            Kích thước: &nbsp;
+                            <span className="font-medium text-gray">
+                              {size?.name}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="order-d-item-calc">
+                          <p className="font-bold text-lg">
+                            Số lượng: &nbsp;
+                            <span className="text-gray">{quantity}</span>
+                          </p>
+                          <p className="font-bold text-lg">
+                            Giá: &nbsp;
+                            <span className="text-gray">
+                              {price.toLocaleString("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              })}
+                            </span>
+                          </p>
+                        </div>
                       </div>
-                      <div className="order-d-item-info">
-                        <p className="text-xl font-bold">
-                          {product?.Product?.name}
-                        </p>
-                        <p className="text-md font-bold">
-                          Màu: &nbsp;
-                          <span className="font-medium text-gray">
-                            {color?.name}
-                          </span>
-                        </p>
-                        <p className="text-md font-bold">
-                          Kích thước: &nbsp;
-                          <span className="font-medium text-gray">
-                            {size?.name}
-                          </span>
-                        </p>
-                      </div>
-                      <div className="order-d-item-calc">
-                        <p className="font-bold text-lg">
-                          Số lượng: &nbsp;
-                          <span className="text-gray">{quantity}</span>
-                        </p>
-                        <p className="font-bold text-lg">
-                          Giá: &nbsp;
-                          <span className="text-gray">
-                            {price.toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            })}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  }
+                )}
               </OrderDetailListWrapper>
             </div>
 
