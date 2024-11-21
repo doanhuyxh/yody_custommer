@@ -63,6 +63,7 @@ const OrderListScreen = () => {
     pending: 0,
     shipping: 0,
     completed: 0,
+    cancelled: 0,
   });
 
   useEffect(() => {
@@ -86,6 +87,7 @@ const OrderListScreen = () => {
   const activeOrders = orders.filter((order) => order.status === "pending");
   const shippingOrders = orders.filter((order) => order.status === "shipping");
   const completedOrders = orders.filter((order) => order.status === "success");
+  const cancelledOrders = orders.filter((order) => order.status === "cancel");
 
   const formatBadgeCount = (count) => {
     return count > 99 ? "99+" : count;
@@ -105,10 +107,13 @@ const OrderListScreen = () => {
           case "completed":
             acc.completed++;
             break;
+          case "cancelled":
+            acc.cancelled++;
+            break;
         }
         return acc;
       },
-      { pending: 0, shipping: 0, completed: 0 }
+      { pending: 0, shipping: 0, completed: 0, cancelled: 0 }
     );
 
     setOrderCounts(counts);
@@ -143,9 +148,9 @@ const OrderListScreen = () => {
                 <button
                   type="button"
                   className={`order-tabs-head text-xl italic ${
-                    activeTab === "cancelled" ? "order-tabs-head-active" : ""
+                    activeTab === "shipping" ? "order-tabs-head-active" : ""
                   }`}
-                  onClick={() => handleTabClick("cancelled")}
+                  onClick={() => handleTabClick("shipping")}
                 >
                   Đang vận chuyển{" "}
                   <StatusBadge>
@@ -162,6 +167,18 @@ const OrderListScreen = () => {
                   Đã hoàn thành{" "}
                   <StatusBadge>
                     {formatBadgeCount(orderCounts.completed)}
+                  </StatusBadge>
+                </button>
+                <button
+                  type="button"
+                  className={`order-tabs-head text-xl italic ${
+                    activeTab === "cancelled" ? "order-tabs-head-active" : ""
+                  }`}
+                  onClick={() => handleTabClick("cancelled")}
+                >
+                  Đã huỷ
+                  <StatusBadge>
+                    {formatBadgeCount(orderCounts.cancelled)}
                   </StatusBadge>
                 </button>
               </div>
@@ -186,14 +203,14 @@ const OrderListScreen = () => {
 
                     <div
                       className={`order-tabs-content ${
-                        activeTab === "cancelled" ? "" : "hidden"
+                        activeTab === "shipping" ? "" : "hidden"
                       }`}
-                      id="cancelled"
+                      id="shipping"
                     >
                       {shippingOrders.length > 0 ? (
                         <OrderItemList orders={shippingOrders} />
                       ) : (
-                        <p>Không có đơn hàng đã hủy.</p>
+                        <p>Không có đơn hàng đang vận chuyển.</p>
                       )}
                     </div>
 
@@ -207,6 +224,19 @@ const OrderListScreen = () => {
                         <OrderItemList orders={completedOrders} />
                       ) : (
                         <p>Không có đơn hàng đã hoàn thành.</p>
+                      )}
+                    </div>
+
+                    <div
+                      className={`order-tabs-content ${
+                        activeTab === "cancelled" ? "" : "hidden"
+                      }`}
+                      id="cancelled"
+                    >
+                      {cancelledOrders.length > 0 ? (
+                        <OrderItemList orders={cancelledOrders} />
+                      ) : (
+                        <p>Không có đơn hàng đã huỷ.</p>
                       )}
                     </div>
                   </>
