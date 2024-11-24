@@ -145,7 +145,15 @@ const OrderItem = ({ order }) => {
             <span className="text-gray font-semibold">
               Trạng thái đơn hàng:
             </span>
-            <span className="text-silver">{order.status}</span>
+            <span className="text-silver">
+              {order.status === "pending"
+                ? "Đang xử lý"
+                : order.status === "shipping"
+                ? "Đang vận chuyển"
+                : order.status === "success"
+                ? "Đã hoàn thành"
+                : "Đã hủy"}
+            </span>
           </div>
           <div className="order-info-item">
             <span className="text-gray font-semibold">
