@@ -64,6 +64,7 @@ const OrderListScreen = () => {
     shipping: 0,
     completed: 0,
     cancelled: 0,
+    refund: 0,
   });
 
   useEffect(() => {
@@ -84,10 +85,11 @@ const OrderListScreen = () => {
     fetchOrders();
   }, []);
 
-  const activeOrders = orders.filter((order) => order.status === "pending");
-  const shippingOrders = orders.filter((order) => order.status === "shipping");
-  const completedOrders = orders.filter((order) => order.status === "success");
-  const cancelledOrders = orders.filter((order) => order.status === "cancel");
+  const activeOrders = orders?.filter((order) => order.status === "pending");
+  const shippingOrders = orders?.filter((order) => order.status === "shipping");
+  const completedOrders = orders?.filter((order) => order.status === "success");
+  const cancelledOrders = orders?.filter((order) => order.status === "cancel");
+  const refundOrders = orders?.filter((order) => order.status === "refund");
 
   const formatBadgeCount = (count) => {
     return count > 99 ? "99+" : count;
@@ -95,7 +97,7 @@ const OrderListScreen = () => {
 
   useEffect(() => {
     // Calculate counts from orders array
-    const counts = orders.reduce(
+    const counts = orders?.reduce(
       (acc, order) => {
         switch (order.status) {
           case "pending":
@@ -110,10 +112,15 @@ const OrderListScreen = () => {
           case "cancelled":
             acc.cancelled++;
             break;
+          case "refund":
+            acc.refund++;
+            break;
+          default:
+            break;
         }
         return acc;
       },
-      { pending: 0, shipping: 0, completed: 0, cancelled: 0 }
+      { pending: 0, shipping: 0, completed: 0, cancelled: 0, refund: 0 }
     );
 
     setOrderCounts(counts);
@@ -142,7 +149,7 @@ const OrderListScreen = () => {
                 >
                   Đang xử lý{" "}
                   <StatusBadge>
-                    {formatBadgeCount(orderCounts.pending)}
+                    {formatBadgeCount(orderCounts?.pending || 0)}
                   </StatusBadge>
                 </button>
                 <button
@@ -154,7 +161,7 @@ const OrderListScreen = () => {
                 >
                   Đang vận chuyển{" "}
                   <StatusBadge>
-                    {formatBadgeCount(orderCounts.shipping)}
+                    {formatBadgeCount(orderCounts?.shipping || 0)}
                   </StatusBadge>
                 </button>
                 <button
@@ -164,9 +171,9 @@ const OrderListScreen = () => {
                   }`}
                   onClick={() => handleTabClick("completed")}
                 >
-                  Đã hoàn thành{" "}
+                  Đã giao hàng{" "}
                   <StatusBadge>
-                    {formatBadgeCount(orderCounts.completed)}
+                    {formatBadgeCount(orderCounts?.completed || 0)}
                   </StatusBadge>
                 </button>
                 <button
@@ -178,7 +185,19 @@ const OrderListScreen = () => {
                 >
                   Đã huỷ
                   <StatusBadge>
-                    {formatBadgeCount(orderCounts.cancelled)}
+                    {formatBadgeCount(orderCounts?.cancelled || 0)}
+                  </StatusBadge>
+                </button>
+                <button
+                  type="button"
+                  className={`order-tabs-head text-xl italic ${
+                    activeTab === "refund" ? "order-tabs-head-active" : ""
+                  }`}
+                  onClick={() => handleTabClick("refund")}
+                >
+                  Đã hoàn tiền{" "}
+                  <StatusBadge>
+                    {formatBadgeCount(orderCounts?.refund || 0)}
                   </StatusBadge>
                 </button>
               </div>
@@ -194,7 +213,7 @@ const OrderListScreen = () => {
                       }`}
                       id="active"
                     >
-                      {activeOrders.length > 0 ? (
+                      {activeOrders?.length > 0 ? (
                         <OrderItemList orders={activeOrders} />
                       ) : (
                         <p>Không có đơn hàng đang xử lý.</p>
@@ -207,7 +226,7 @@ const OrderListScreen = () => {
                       }`}
                       id="shipping"
                     >
-                      {shippingOrders.length > 0 ? (
+                      {shippingOrders?.length > 0 ? (
                         <OrderItemList orders={shippingOrders} />
                       ) : (
                         <p>Không có đơn hàng đang vận chuyển.</p>
@@ -220,10 +239,10 @@ const OrderListScreen = () => {
                       }`}
                       id="completed"
                     >
-                      {completedOrders.length > 0 ? (
+                      {completedOrders?.length > 0 ? (
                         <OrderItemList orders={completedOrders} />
                       ) : (
-                        <p>Không có đơn hàng đã hoàn thành.</p>
+                        <p>Không có đơn hàng nào đã giao.</p>
                       )}
                     </div>
 
@@ -233,10 +252,23 @@ const OrderListScreen = () => {
                       }`}
                       id="cancelled"
                     >
-                      {cancelledOrders.length > 0 ? (
+                      {cancelledOrders?.length > 0 ? (
                         <OrderItemList orders={cancelledOrders} />
                       ) : (
                         <p>Không có đơn hàng đã huỷ.</p>
+                      )}
+                    </div>
+
+                    <div
+                      className={`order-tabs-content ${
+                        activeTab === "refund" ? "" : "hidden"
+                      }`}
+                      id="refund"
+                    >
+                      {refundOrders?.length > 0 ? (
+                        <OrderItemList orders={refundOrders} />
+                      ) : (
+                        <p>Không có đơn hàng đã hoàn tiền.</p>
                       )}
                     </div>
                   </>

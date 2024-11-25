@@ -286,7 +286,17 @@ const OrderDetailScreen = () => {
                   <p className="text-lg font-medium text-gray">
                     Trạng thái:{" "}
                     <span className="text-outerspace">
-                      {orderDetail?.status}
+                      {orderDetail?.status === "pending"
+                        ? "Đang xử lý"
+                        : orderDetail?.status === "shipping"
+                        ? "Đang vận chuyển"
+                        : orderDetail?.status === "success"
+                        ? "Đã giao hàng"
+                        : orderDetail?.status === "cancel"
+                        ? "Đã hủy"
+                        : orderDetail?.status === "refund"
+                        ? "Đã hoàn tiền"
+                        : ""}
                     </span>
                   </p>
                   <p className="text-lg font-medium text-gray">

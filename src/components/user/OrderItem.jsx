@@ -151,8 +151,12 @@ const OrderItem = ({ order }) => {
                 : order.status === "shipping"
                 ? "Đang vận chuyển"
                 : order.status === "success"
-                ? "Đã hoàn thành"
-                : "Đã hủy"}
+                ? "Đã giao hàng"
+                : order.status === "cancel"
+                ? "Đã hủy"
+                : order.status === "refund"
+                ? "Đã hoàn tiền"
+                : ""}
             </span>
           </div>
           <div className="order-info-item">
