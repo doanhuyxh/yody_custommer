@@ -172,6 +172,11 @@ const Billing = () => {
       return;
     }
 
+    if (!validatePhoneNumber(phoneNumber)) {
+      toast.error("Số điện thoại không hợp lệ");
+      return;
+    }
+
     const items = cart?.map((item) => ({
       product_variant_id: item.product_variant_id,
       quantity: item.quantity,
@@ -188,6 +193,11 @@ const Billing = () => {
 
     const data = await vnpayPayment(subtotal);
     window.location.href = data.data;
+  };
+
+  const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^(0|\+84)[3-9][0-9]{8}$/; // Số điện thoại Việt Nam bắt đầu bằng 0 hoặc +84
+    return phoneRegex.test(phone);
   };
 
   return (

@@ -13,6 +13,7 @@ NProgress.configure({
 // Tạo một instance axios với cấu hình baseURL
 const instance = axios.create({
   baseURL: "https://api.yody.lokid.xyz/", // URL cơ sở cho mọi request
+  // baseURL: "http://127.0.0.1:8080/", // URL cơ sở cho mọi request
 });
 
 // Thêm một interceptor request để xử lý trước khi gửi mọi request
