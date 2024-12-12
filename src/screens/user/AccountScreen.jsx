@@ -127,7 +127,6 @@ const AccountScreen = () => {
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
-  const [isEditingAddress, setIsEditingAddress] = useState(false);
 
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -136,7 +135,6 @@ const AccountScreen = () => {
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("Password");
-  const [address, setAddress] = useState("");
 
   const fetchUserInfo = async () => {
     try {
@@ -144,7 +142,6 @@ const AccountScreen = () => {
       setName(data.data.full_name);
       setEmail(data.data.email);
       setPhoneNumber(data.data.phone_number);
-      setAddress(data.data.address);
       if (data.data.avatar) {
         setAvatarPreview(`https://api.yody.lokid.xyz${data.data.avatar}`);
       }
@@ -409,44 +406,6 @@ const AccountScreen = () => {
                       }}
                     >
                       {isEditingPassword ? "Lưu" : "Thay đổi"}
-                    </button>
-                  </div>
-                </FormElement>
-
-                <FormElement className="form-elem">
-                  <label
-                    htmlFor=""
-                    className="form-label font-semibold text-base"
-                  >
-                    Địa chỉ
-                  </label>
-                  <div
-                    style={{ gap: 10 }}
-                    className="form-input-wrapper flex items-center"
-                  >
-                    <Input
-                      type="text"
-                      style={{
-                        padding: isEditingAddress ? "10px" : "0",
-                        border: isEditingAddress ? "1px solid #2d2d2d" : "none",
-                      }}
-                      className="form-elem-control text-outerspace font-semibold"
-                      value={address}
-                      readOnly={!isEditingAddress}
-                      onChange={(e) => setAddress(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="form-control-change-btn"
-                      onClick={() => {
-                        if (isEditingAddress) {
-                          handleSave("address", address, setIsEditingAddress);
-                        } else {
-                          setIsEditingAddress(true);
-                        }
-                      }}
-                    >
-                      {isEditingAddress ? "Lưu" : "Thay đổi"}
                     </button>
                   </div>
                 </FormElement>
