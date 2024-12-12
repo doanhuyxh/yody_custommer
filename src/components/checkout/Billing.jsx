@@ -155,35 +155,21 @@ const Billing = () => {
           localStorage.getItem("shippingInfo")
         );
 
+        const data = await getUserInfo(customer.id);
+          const { full_name, email, phone_number, address } = data.data;
+          setName(full_name);
+          setEmail(email);
+          setPhoneNumber(phone_number);
+
         if (savedShippingInfo) {
-          setName(savedShippingInfo.name || "");
-          setEmail(savedShippingInfo.email || "");
-          setPhoneNumber(savedShippingInfo.phoneNumber || "");
+          // setName(savedShippingInfo.name || "");
+          // setEmail(savedShippingInfo.email || "");
+          // setPhoneNumber(savedShippingInfo.phoneNumber || "");
           setAddress(savedShippingInfo.address || "");
           setProvince(savedShippingInfo.province || "");
           setDistrict(savedShippingInfo.district || "");
           setWard(savedShippingInfo.ward || "");
-        } else {
-          const data = await getUserInfo(customer.id);
-          const { full_name, email, phone_number, address } = data.data;
-
-          const shippingInfo = {
-            name: full_name,
-            email,
-            phoneNumber: phone_number,
-            address,
-            province: "",
-            district: "",
-            ward: "",
-          };
-
-          setName(full_name);
-          setEmail(email);
-          setPhoneNumber(phone_number);
-          setAddress(address);
-
-          localStorage.setItem("shippingInfo", JSON.stringify(shippingInfo));
-        }
+        } 
       } catch (error) {
         console.error("Error fetching user info:", error);
       }
@@ -236,15 +222,7 @@ const Billing = () => {
     localStorage.setItem("shippingInfo", JSON.stringify(updatedShippingInfo));
 
     switch (field) {
-      case "name":
-        setName(value);
-        break;
-      case "email":
-        setEmail(value);
-        break;
-      case "phoneNumber":
-        setPhoneNumber(value);
-        break;
+      
       case "address":
         setAddress(value);
         break;
@@ -268,8 +246,7 @@ const Billing = () => {
     const shippingInfo = JSON.parse(localStorage.getItem("shippingInfo"));
   
     if (
-      !shippingInfo.name ||
-      !shippingInfo.phoneNumber ||
+      
       !shippingInfo.address ||
       !shippingInfo.province ||
       !shippingInfo.district ||
@@ -279,25 +256,25 @@ const Billing = () => {
       return;
     }
   
-    if (!isValidPhoneNumber(shippingInfo.phoneNumber)) {
+    if (!isValidPhoneNumber(phoneNumber)) {
       toast.error("Số điện thoại không hợp lệ");
       return;
     }
   
-      await updateProfile({
-        id: customer.id,
-        field: "full_name", 
-        value: shippingInfo.name,
-      });
+      // await updateProfile({
+      //   id: customer.id,
+      //   field: "full_name", 
+      //   value: shippingInfo.name,
+      // });
   
-      await updateProfile({
-        id: customer.id,
-        field: "phone_number", 
-        value: shippingInfo.phoneNumber,
-      });
+      // await updateProfile({
+      //   id: customer.id,
+      //   field: "phone_number", 
+      //   value: shippingInfo.phoneNumber,
+      // });
   
   
-      const fullAddress = `${shippingInfo.province}, ${shippingInfo.district}, ${shippingInfo.ward}, ${shippingInfo.address}`;
+      const fullAddress = `${shippingInfo.address}, ${shippingInfo.ward}, ${shippingInfo.district}, ${shippingInfo.province}`;
   
       const items = cart.map((item) => ({
         product_variant_id: item.product_variant_id,
@@ -332,7 +309,8 @@ const Billing = () => {
                 type="text"
                 placeholder="Họ và tên"
                 value={name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
+                disabled={true}
+
               />
             </div>
             <div className="input-elem elem-col-2">
@@ -341,9 +319,7 @@ const Billing = () => {
                 type="text"
                 placeholder="Số điện thoại"
                 value={phoneNumber}
-                onChange={(e) =>
-                  handleInputChange("phoneNumber", e.target.value)
-                }
+               disabled={true}
               />
             </div>
           </div>

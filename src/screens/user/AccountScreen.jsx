@@ -157,8 +157,20 @@ const AccountScreen = () => {
     fetchUserInfo();
   }, []);
 
+  const isValidPhoneNumber = (phone) => {
+    const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/; // Định dạng số ĐT Việt Nam
+    return phoneRegex.test(phone);
+  };
+
   const handleSave = async (field, value, setEditing) => {
     try {
+      if(field === "phone_number") {
+        if (!isValidPhoneNumber(value)) {
+          toast.error("Số điện thoại không hợp lệ");
+          return;
+        }
+      }
+
       await updateProfile({ id: customer.id, field, value });
       toast.success("Cập nhật thành công!");
       setEditing(false); // Exit edit mode after successful update
