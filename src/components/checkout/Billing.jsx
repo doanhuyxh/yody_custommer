@@ -264,9 +264,9 @@ const Billing = () => {
 
   const handleCheckout = async (e) => {
     e.preventDefault();
-
+  
     const shippingInfo = JSON.parse(localStorage.getItem("shippingInfo"));
-
+  
     if (
       !shippingInfo.name ||
       !shippingInfo.phoneNumber ||
@@ -278,31 +278,46 @@ const Billing = () => {
       toast.error("Vui lòng điền đầy đủ thông tin");
       return;
     }
-    
+  
     if (!isValidPhoneNumber(shippingInfo.phoneNumber)) {
       toast.error("Số điện thoại không hợp lệ");
       return;
     }
-
-    const fullAddress = `${shippingInfo.province}, ${shippingInfo.district}, ${shippingInfo.ward}, ${shippingInfo.address}`;
-
-    const items = cart.map((item) => ({
-      product_variant_id: item.product_variant_id,
-      quantity: item.quantity,
-      price: item.price,
-    }));
-
-    dispatch(
-      addOrder({
-        items,
-        shipping_address: fullAddress,
-        total_amount: subtotal,
-      })
-    );
-
-    const data = await vnpayPayment(subtotal);
-    window.location.href = data.data;
+  
+      await updateProfile({
+        id: customer.id,
+        field: "full_name", 
+        value: shippingInfo.name,
+      });
+  
+      await updateProfile({
+        id: customer.id,
+        field: "phone_number", 
+        value: shippingInfo.phoneNumber,
+      });
+  
+  
+      const fullAddress = `${shippingInfo.province}, ${shippingInfo.district}, ${shippingInfo.ward}, ${shippingInfo.address}`;
+  
+      const items = cart.map((item) => ({
+        product_variant_id: item.product_variant_id,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+  
+      dispatch(
+        addOrder({
+          items,
+          shipping_address: fullAddress,
+          total_amount: subtotal,
+        })
+      );
+  
+      const data = await vnpayPayment(subtotal);
+      window.location.href = data.data;
+   
   };
+  
   return (
     <BillingOrderWrapper className="billing-and-order grid items-start">
       <BillingDetailsWrapper>
